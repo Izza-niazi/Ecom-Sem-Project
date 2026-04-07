@@ -94,6 +94,7 @@ const Searchbar = () => {
             >
                 <Logo className="mr-2 shrink-0" />
                 <input
+                    id="header-search-input"
                     value={keyword}
                     onChange={(e) => {
                         setKeyword(e.target.value);
@@ -104,8 +105,10 @@ const Searchbar = () => {
                     type="text"
                     placeholder='Try "shoes under 5000" or product name…'
                     autoComplete="off"
+                    role="combobox"
                     aria-autocomplete="list"
                     aria-expanded={hasSuggestions}
+                    aria-controls="search-suggestions-listbox"
                 />
                 <button type="submit" className="text-sky-400 transition hover:text-sky-300" aria-label="Search">
                     <SearchIcon />
@@ -114,8 +117,10 @@ const Searchbar = () => {
 
             {hasSuggestions ? (
                 <div
+                    id="search-suggestions-listbox"
                     className="absolute left-0 right-0 top-full z-20 mt-1 max-h-80 overflow-auto rounded-lg border border-app-border bg-app-card py-1 shadow-2xl shadow-black/50"
                     role="listbox"
+                    aria-labelledby="header-search-input"
                 >
                     {loadingSuggest && products.length === 0 && categories.length === 0 ? (
                         <p className="px-3 py-2 text-xs text-slate-500">Searching…</p>
@@ -125,6 +130,7 @@ const Searchbar = () => {
                             key={`cat-${c}`}
                             type="button"
                             role="option"
+                            aria-selected="false"
                             className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-200 hover:bg-white/5"
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => selectCategory(c)}
@@ -140,6 +146,7 @@ const Searchbar = () => {
                             key={p._id}
                             type="button"
                             role="option"
+                            aria-selected="false"
                             className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-white/5"
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => selectProduct(p.name)}

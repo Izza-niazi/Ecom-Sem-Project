@@ -5,7 +5,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Slider from '@mui/material/Slider';
 import { useSnackbar } from 'notistack';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { clearErrors, getProducts } from '../../actions/productAction';
@@ -48,6 +48,18 @@ function readPriceFromSearch(search) {
     return [low, high];
 }
 
+function readBrandFromSearch(search) {
+    const b = new URLSearchParams(search).get('brand');
+    return b || '';
+}
+
+function readRatingsFromSearch(search) {
+    const r = new URLSearchParams(search).get('ratings');
+    if (r === null || r === '') return 0;
+    const n = Number(r);
+    return Number.isNaN(n) ? 0 : n;
+}
+
 const Products = () => {
 
     const dispatch = useDispatch();
@@ -69,6 +81,8 @@ const Products = () => {
 
     const { products, loading, error, resultPerPage, filteredProductsCount } = useSelector((state) => state.products);
     const keyword = params.keyword;
+
+    const brand = useMemo(() => readBrandFromSearch(location.search), [location.search]);
 
     const listTitle = keyword
         ? metaTitle(`Search: ${keyword}`)
@@ -99,6 +113,7 @@ const Products = () => {
     useEffect(() => {
         setCategory(readCategoryFromSearch(location.search));
         setPrice(readPriceFromSearch(location.search));
+        setRatings(readRatingsFromSearch(location.search));
         setCurrentPage(1);
     }, [location.search]);
 
@@ -107,8 +122,8 @@ const Products = () => {
             enqueueSnackbar(error, { variant: "error" });
             dispatch(clearErrors());
         }
-        dispatch(getProducts(keyword, category, price, ratings, currentPage));
-    }, [dispatch, keyword, category, price, ratings, currentPage, error, enqueueSnackbar]);
+        dispatch(getProducts(keyword, category, price, ratings, currentPage, brand));
+    }, [dispatch, keyword, category, price, ratings, currentPage, brand, error, enqueueSnackbar]);
 
     const categoryRadioChange = (value) => {
         setCategory(value);
@@ -123,6 +138,12 @@ const Products = () => {
         }
         if (price[0] > 0) {
             p.set('minPrice', String(price[0]));
+        }
+        if (brand) {
+            p.set('brand', brand);
+        }
+        if (ratings > 0) {
+            p.set('ratings', String(ratings));
         }
         navigate({ pathname: base, search: p.toString() ? `?${p.toString()}` : '' });
     };
