@@ -1,0 +1,10 @@
+# dependencies
+/node_modules
+
+# local env files
+/backend/config/config.env
+backend/.env
+.env
+
+# User-uploaded images (created at runtime)
+backend/uploads
