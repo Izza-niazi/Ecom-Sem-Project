@@ -1,5 +1,9 @@
 # dependencies
 /node_modules
+/frontend/node_modules
+
+# production build (regenerate with: npm run build --prefix frontend)
+/frontend/build
 
 # local env files
 /backend/config/config.env

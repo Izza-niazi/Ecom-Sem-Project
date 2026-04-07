@@ -12,10 +12,6 @@ export const formatDate = (dt) => {
     return new Date(dt).toUTCString().substring(0,16);
 }
 
-export const getRandomProducts = (prodsArray, n) => {
-    return prodsArray.sort(() => 0.5 - Math.random()).slice(0, n)
-}
-
 /** Deterministic slices from DB products so each home row can show a different set without dummy data. */
 export const sliceProductsForHome = (products, sectionIndex, count = 12) => {
     if (!products?.length) return [];
