@@ -1,6 +1,6 @@
 /**
- * Rule-based natural language → structured search (PK storefront: treat $ as Rs amount).
- * Examples: "show me shoes under 5000", "laptops below Rs 80000", "phones over 10000"
+ * Rule-based natural language → structured search (PK storefront: treat $ as PKR amount).
+ * Examples: "show me shoes under 5000", "laptops below PKR 80000", "phones over 10000"
  */
 
 const FILLER =

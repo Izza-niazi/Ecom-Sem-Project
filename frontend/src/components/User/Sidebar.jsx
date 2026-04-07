@@ -4,16 +4,37 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PersonIcon from '@mui/icons-material/Person';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { logoutUser } from '../../actions/userAction';
+
+const linkAccount = (active, children, to) => (
+    <Link
+        to={to}
+        className={`${
+            active
+                ? 'bg-blue-50 font-medium text-primary-blue dark:bg-slate-800/80 dark:text-sky-400'
+                : 'hover:bg-blue-50 hover:text-primary-blue dark:hover:bg-slate-800/50'
+        } p-3 pl-14`}
+    >
+        {children}
+    </Link>
+);
 
 const Sidebar = ({ activeTab }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { pathname, hash } = useLocation();
     const { enqueueSnackbar } = useSnackbar();
 
     const { user } = useSelector((state) => state.user);
+
+    const accountSub =
+        pathname === '/account' && hash === '#payment-methods'
+            ? 'payment'
+            : pathname === '/account'
+            ? 'profile'
+            : null;
 
     const handleLogout = () => {
         dispatch(logoutUser());
@@ -61,16 +82,16 @@ const Sidebar = ({ activeTab }) => {
                     <p className="flex w-full justify-between font-medium text-gray-500">ACCOUNT SETTINGS</p>
                 </div>
                 <div className="flex flex-col border-b pb-3 text-sm">
-                    <Link
-                        to="/account"
-                        className={`${
-                            activeTab === 'profile'
-                                ? 'bg-blue-50 font-medium text-primary-blue'
-                                : 'hover:bg-blue-50 hover:text-primary-blue'
-                        } p-3 pl-14`}
-                    >
-                        Profile Information
-                    </Link>
+                    {linkAccount(
+                        activeTab === 'profile' && accountSub === 'profile',
+                        'Profile Information',
+                        '/account'
+                    )}
+                    {linkAccount(
+                        activeTab === 'profile' && accountSub === 'payment',
+                        'Payment methods',
+                        '/account#payment-methods'
+                    )}
                 </div>
 
                 <div className="flex items-center gap-5 px-4 py-4">

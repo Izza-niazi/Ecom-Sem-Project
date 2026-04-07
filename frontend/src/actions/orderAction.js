@@ -17,13 +17,17 @@ export const newOrder = (order) => async (dispatch) => {
         dispatch({
             type: NEW_ORDER_SUCCESS,
             payload: data,
-        })
+        });
 
+        return data;
     } catch (error) {
+        const message =
+            error.response?.data?.message || error.message || "Order failed";
         dispatch({
             type: NEW_ORDER_FAIL,
-            payload: error.response.data.message,
+            payload: message,
         });
+        throw message;
     }
 };
 

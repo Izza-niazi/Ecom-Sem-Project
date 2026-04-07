@@ -162,8 +162,8 @@ function buildFallbackReply(search) {
     if (search.keyword) parts.push(`“${search.keyword}”`);
     if (search.category) parts.push(`in ${search.category}`);
     if (search.brand) parts.push(`brand ${search.brand}`);
-    if (search.maxPrice != null) parts.push(`under Rs ${Math.round(search.maxPrice)}`);
-    if (search.minPrice != null) parts.push(`from Rs ${Math.round(search.minPrice)}`);
+    if (search.maxPrice != null) parts.push(`under PKR ${Math.round(search.maxPrice)}`);
+    if (search.minPrice != null) parts.push(`from PKR ${Math.round(search.minPrice)}`);
     if (search.minRating != null) parts.push(`${search.minRating}+ stars`);
     if (parts.length === 0) {
         return 'Tell me what you are looking for (product, price, category, or brand).';

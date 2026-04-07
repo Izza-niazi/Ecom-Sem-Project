@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "user",
     },
+    /** Stripe Customer id — used to save cards for future checkout */
+    stripeCustomerId: {
+        type: String,
+        default: null,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

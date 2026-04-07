@@ -1,156 +1,138 @@
 const asyncErrorHandler = require('../middlewares/asyncErrorHandler');
-// const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const paytm = require('paytmchecksum');
-const https = require('https');
-const Payment = require('../models/paymentModel');
 const ErrorHandler = require('../utils/errorHandler');
-const { v4: uuidv4 } = require('uuid');
+const Payment = require('../models/paymentModel');
+const User = require('../models/userModel');
 
-// exports.processPayment = asyncErrorHandler(async (req, res, next) => {
-//     const myPayment = await stripe.paymentIntents.create({
-//         amount: req.body.amount,
-//         currency: "inr",
-//         metadata: {
-//             company: "Flipkart",
-//         },
-//     });
+const getStripe = () => {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+        throw new Error('STRIPE_SECRET_KEY is not set');
+    }
+    // eslint-disable-next-line global-require
+    return require('stripe')(key);
+};
 
-//     res.status(200).json({
-//         success: true,
-//         client_secret: myPayment.client_secret, 
-//     });
-// });
-
-// exports.sendStripeApiKey = asyncErrorHandler(async (req, res, next) => {
-//     res.status(200).json({ stripeApiKey: process.env.STRIPE_API_KEY });
-// });
-
-// Process Payment
-exports.processPayment = asyncErrorHandler(async (req, res, next) => {
-
-    const { amount, email, phoneNo } = req.body;
-
-    var params = {};
-
-    /* initialize an array */
-    params["MID"] = process.env.PAYTM_MID;
-    params["WEBSITE"] = process.env.PAYTM_WEBSITE;
-    params["CHANNEL_ID"] = process.env.PAYTM_CHANNEL_ID;
-    params["INDUSTRY_TYPE_ID"] = process.env.PAYTM_INDUSTRY_TYPE;
-    params["ORDER_ID"] = "oid" + uuidv4();
-    params["CUST_ID"] = process.env.PAYTM_CUST_ID;
-    params["TXN_AMOUNT"] = JSON.stringify(amount);
-    // params["CALLBACK_URL"] = `${req.protocol}://${req.get("host")}/api/v1/callback`;
-    params["CALLBACK_URL"] = `https://${req.get("host")}/api/v1/callback`;
-    params["EMAIL"] = email;
-    params["MOBILE_NO"] = phoneNo;
-
-    let paytmChecksum = paytm.generateSignature(params, process.env.PAYTM_MERCHANT_KEY);
-    paytmChecksum.then(function (checksum) {
-
-        let paytmParams = {
-            ...params,
-            "CHECKSUMHASH": checksum,
-        };
-
-        res.status(200).json({
-            paytmParams
-        });
-
-    }).catch(function (error) {
-        console.log(error);
+// Publishable key for Stripe.js (safe to expose to the browser)
+exports.sendStripeApiKey = asyncErrorHandler(async (req, res, next) => {
+    const publishable =
+        process.env.STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_API_KEY;
+    if (!publishable) {
+        return next(
+            new ErrorHandler(
+                'STRIPE_PUBLISHABLE_KEY (or STRIPE_API_KEY) is not set',
+                500
+            )
+        );
+    }
+    res.status(200).json({
+        stripeApiKey: publishable,
     });
 });
 
-// Paytm Callback
-exports.paytmResponse = (req, res, next) => {
-
-    // console.log(req.body);
-
-    let paytmChecksum = req.body.CHECKSUMHASH;
-    delete req.body.CHECKSUMHASH;
-
-    let isVerifySignature = paytm.verifySignature(req.body, process.env.PAYTM_MERCHANT_KEY, paytmChecksum);
-    if (isVerifySignature) {
-        // console.log("Checksum Matched");
-
-        var paytmParams = {};
-
-        paytmParams.body = {
-            "mid": req.body.MID,
-            "orderId": req.body.ORDERID,
-        };
-
-        paytm.generateSignature(JSON.stringify(paytmParams.body), process.env.PAYTM_MERCHANT_KEY).then(function (checksum) {
-
-            paytmParams.head = {
-                "signature": checksum
-            };
-
-            /* prepare JSON string for request */
-            var post_data = JSON.stringify(paytmParams);
-
-            var options = {
-                /* for Staging */
-                hostname: 'securegw-stage.paytm.in',
-                /* for Production */
-                // hostname: 'securegw.paytm.in',
-                port: 443,
-                path: '/v3/order/status',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': post_data.length
-                }
-            };
-
-            // Set up the request
-            var response = "";
-            var post_req = https.request(options, function (post_res) {
-                post_res.on('data', function (chunk) {
-                    response += chunk;
-                });
-
-                post_res.on('end', function () {
-                    let { body } = JSON.parse(response);
-                    // let status = body.resultInfo.resultStatus;
-                    // res.json(body);
-                    addPayment(body);
-                    // res.redirect(`${req.protocol}://${req.get("host")}/order/${body.orderId}`)
-                    res.redirect(`https://${req.get("host")}/order/${body.orderId}`)
-                });
-            });
-
-            // post the data
-            post_req.write(post_data);
-            post_req.end();
-        });
-
-    } else {
-        console.log("Checksum Mismatched");
+async function getOrCreateStripeCustomer(userId) {
+    const user = await User.findById(userId);
+    if (!user) {
+        const err = new ErrorHandler('User not found', 404);
+        throw err;
     }
+    if (user.stripeCustomerId) {
+        return user.stripeCustomerId;
+    }
+    const stripe = getStripe();
+    const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.name,
+        metadata: { userId: user._id.toString() },
+    });
+    await User.findByIdAndUpdate(userId, {
+        stripeCustomerId: customer.id,
+    });
+    return customer.id;
 }
 
-const addPayment = async (data) => {
-    try {
-        await Payment.create(data);
-    } catch (error) {
-        console.log("Payment Failed!");
+// Create a PaymentIntent (test mode uses sk_test_..., live uses sk_live_...)
+exports.processPayment = asyncErrorHandler(async (req, res, next) => {
+    const { amount, saveCard } = req.body;
+    const num = Number(amount);
+    if (!Number.isFinite(num) || num <= 0) {
+        return next(new ErrorHandler('Invalid amount', 400));
     }
-}
+    // PKR uses two decimal places; Stripe amounts are in the smallest unit (paisa per rupee)
+    const amountMinor = Math.round(num * 100);
+    if (amountMinor < 100) {
+        return next(
+            new ErrorHandler(
+                'Amount must be at least PKR 1.00 (Stripe minimum for this currency)',
+                400
+            )
+        );
+    }
+
+    const stripe = getStripe();
+    const customerId = await getOrCreateStripeCustomer(req.user._id);
+
+    const intentParams = {
+        amount: amountMinor,
+        currency: 'pkr',
+        payment_method_types: ['card'],
+        customer: customerId,
+        metadata: {
+            userId: req.user._id.toString(),
+        },
+    };
+
+    if (saveCard === true) {
+        intentParams.setup_future_usage = 'on_session';
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create(intentParams);
+
+    res.status(200).json({
+        success: true,
+        client_secret: paymentIntent.client_secret,
+    });
+});
+
+/** Saved cards (card brand + last4 only — full PAN never touches your server) */
+exports.listPaymentMethods = asyncErrorHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (!user || !user.stripeCustomerId) {
+        return res.status(200).json({ paymentMethods: [] });
+    }
+
+    const stripe = getStripe();
+    const list = await stripe.paymentMethods.list({
+        customer: user.stripeCustomerId,
+        type: 'card',
+    });
+
+    const paymentMethods = list.data.map((pm) => ({
+        id: pm.id,
+        brand: pm.card.brand,
+        last4: pm.card.last4,
+        expMonth: pm.card.exp_month,
+        expYear: pm.card.exp_year,
+    }));
+
+    res.status(200).json({ paymentMethods });
+});
+
+// Legacy Paytm callback — kept so old URLs do not 404; new checkout uses Stripe only.
+exports.paytmResponse = (req, res) => {
+    res.status(410).send('Paytm checkout is disabled. Use Stripe checkout.');
+};
 
 exports.getPaymentStatus = asyncErrorHandler(async (req, res, next) => {
-
     const payment = await Payment.findOne({ orderId: req.params.id });
 
     if (!payment) {
-        return next(new ErrorHandler("Payment Details Not Found", 404));
+        return next(new ErrorHandler('Payment Details Not Found', 404));
     }
 
     const txn = {
         id: payment.txnId,
         status: payment.resultInfo.resultStatus,
-    }
+    };
 
     res.status(200).json({
         success: true,

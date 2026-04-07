@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import Sidebar from './Sidebar';
+import SavedPaymentMethods from './SavedPaymentMethods';
 import { useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Loader from '../Layouts/Loader';
 import MinCategory from '../Layouts/MinCategory';
 import MetaData from '../Layouts/MetaData';
@@ -10,6 +11,7 @@ import { APP_NAME, metaTitle } from '../../constants/brand';
 const Account = () => {
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     const { user, loading, isAuthenticated } = useSelector(state => state.user)
 
@@ -18,6 +20,17 @@ const Account = () => {
             navigate("/login")
         }
     }, [isAuthenticated, navigate]);
+
+    useEffect(() => {
+        if (location.hash === '#payment-methods') {
+            const el = document.getElementById('payment-methods');
+            if (el) {
+                requestAnimationFrame(() =>
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                );
+            }
+        }
+    }, [location.hash]);
 
     const getLastName = () => {
         const nameArray = user.name.split(" ");
@@ -108,6 +121,21 @@ const Account = () => {
 
                                     </div>
                                     {/* <!-- mobile number info --> */}
+
+                                    {/* <!-- saved payment methods (Stripe) --> */}
+                                    <div
+                                        id="payment-methods"
+                                        className="flex flex-col gap-4 items-start scroll-mt-24"
+                                    >
+                                        <span className="font-medium text-lg text-slate-100">
+                                            Payment methods
+                                        </span>
+                                        <p className="text-xs text-slate-500 -mt-2">
+                                            Cards saved at checkout (Stripe). Full card numbers are
+                                            never stored on {APP_NAME}.
+                                        </p>
+                                        <SavedPaymentMethods />
+                                    </div>
 
                                     {/* <!-- faqs --> */}
                                     <div className="flex flex-col gap-4 mt-4">

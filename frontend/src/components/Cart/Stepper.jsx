@@ -1,12 +1,14 @@
 import { useSelector } from 'react-redux';
 import CheckIcon from '@mui/icons-material/Check';
+import { stateNameByCode } from '../../utils/states';
 
 const Stepper = ({ activeStep, children }) => {
 
     const { user } = useSelector((state) => state.user);
     const { shippingInfo, cartItems } = useSelector((state) => state.cart);
 
-    const address = `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state} - ${shippingInfo.pincode}`;
+    const region = stateNameByCode(shippingInfo.state) || shippingInfo.state;
+    const address = `${shippingInfo.address}, ${shippingInfo.city}, ${region} - ${shippingInfo.pincode}, Pakistan`;
 
     const steps = [
         {
@@ -23,7 +25,7 @@ const Stepper = ({ activeStep, children }) => {
         },
         {
             label: "PAYMENT OPTIONS",
-            desc: <p className="font-medium text-sm">Paytm</p>
+            desc: <p className="font-medium text-sm">Stripe</p>
         }
     ]
 

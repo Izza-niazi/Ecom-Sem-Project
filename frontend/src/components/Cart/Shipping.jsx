@@ -13,6 +13,9 @@ import { useNavigate } from 'react-router-dom';
 import MetaData from '../Layouts/MetaData';
 import { metaTitle } from '../../constants/brand';
 import states from '../../utils/states';
+import { normalizePakMobile } from '../../utils/pakPhone';
+
+const STATE_CODES = new Set(states.map((s) => s.code));
 
 const Shipping = () => {
 
@@ -25,19 +28,54 @@ const Shipping = () => {
 
     const [address, setAddress] = useState(shippingInfo.address);
     const [city, setCity] = useState(shippingInfo.city);
-    const [country] = useState('IN');
-    const [state, setState] = useState(shippingInfo.state);
-    const [pincode, setPincode] = useState(shippingInfo.pincode);
-    const [phoneNo, setPhoneNo] = useState(shippingInfo.phoneNo);
+    const [country] = useState('PK');
+    const [state, setState] = useState(
+        shippingInfo.state && STATE_CODES.has(shippingInfo.state) ? shippingInfo.state : ''
+    );
+    const [pincode, setPincode] = useState(() => {
+        const p = shippingInfo.pincode;
+        if (p == null || p === '') return '';
+        return String(p).replace(/\D/g, '').slice(0, 5);
+    });
+    const [phoneNo, setPhoneNo] = useState(
+        shippingInfo.phoneNo != null && shippingInfo.phoneNo !== ''
+            ? String(shippingInfo.phoneNo)
+            : ''
+    );
 
     const shippingSubmit = (e) => {
         e.preventDefault();
 
-        if (phoneNo.length < 10 || phoneNo.length > 10) {
-            enqueueSnackbar("Invalid Phone Number", { variant: "error" });
+        const mobile = normalizePakMobile(phoneNo);
+        if (!mobile) {
+            enqueueSnackbar(
+                'Enter a valid Pakistan mobile (e.g. 03XXXXXXXXX or 3XXXXXXXXX)',
+                { variant: 'error' }
+            );
             return;
         }
-        dispatch(saveShippingInfo({ address, city, country, state, pincode, phoneNo }));
+
+        const pinStr = String(pincode).replace(/\D/g, '');
+        if (pinStr.length !== 5) {
+            enqueueSnackbar('Postal code must be 5 digits (Pakistan)', { variant: 'error' });
+            return;
+        }
+
+        if (!state) {
+            enqueueSnackbar('Select a province / region', { variant: 'error' });
+            return;
+        }
+
+        dispatch(
+            saveShippingInfo({
+                address,
+                city,
+                country,
+                state,
+                pincode: Number(pinStr),
+                phoneNo: Number(mobile),
+            })
+        );
         navigate("/order/confirm");
     }
 
@@ -69,21 +107,32 @@ const Shipping = () => {
                                     <div className="flex gap-6">
                                         <TextField
                                             value={pincode}
-                                            onChange={(e) => setPincode(e.target.value)}
-                                            type="number"
-                                            label="Pincode"
+                                            onChange={(e) =>
+                                                setPincode(
+                                                    String(e.target.value)
+                                                        .replace(/\D/g, '')
+                                                        .slice(0, 5)
+                                                )
+                                            }
+                                            inputProps={{ inputMode: 'numeric', maxLength: 5 }}
+                                            label="Postal code"
+                                            placeholder="54000"
                                             fullWidth
                                             variant="outlined"
                                             required
+                                            helperText="5-digit Pakistan postal code"
                                         />
                                         <TextField
                                             value={phoneNo}
                                             onChange={(e) => setPhoneNo(e.target.value)}
-                                            type="number"
-                                            label="Phone No"
+                                            type="tel"
+                                            inputProps={{ inputMode: 'tel', autoComplete: 'tel' }}
+                                            label="Mobile number"
+                                            placeholder="03XX XXXXXXX"
                                             fullWidth
                                             variant="outlined"
                                             required
+                                            helperText="Pakistan mobile (03… or 3…)"
                                         />
                                     </div>
 
@@ -110,12 +159,11 @@ const Shipping = () => {
                                             <Select
                                                 labelId="country-select"
                                                 id="country-select"
-                                                defaultValue={country}
+                                                value={country}
                                                 disabled
                                                 label="Country"
-                                                // onChange={(e) => setCountry(e.target.value)}
                                             >
-                                                <MenuItem value={'IN'}>India</MenuItem>
+                                                <MenuItem value="PK">Pakistan</MenuItem>
                                             </Select>
                                         </FormControl>
 
@@ -124,13 +172,15 @@ const Shipping = () => {
                                             <Select
                                                 labelId="state-select"
                                                 id="state-select"
-                                                value={state}
-                                                label="State"
+                                                value={state || ''}
+                                                label="Province / region"
                                                 onChange={(e) => setState(e.target.value)}
                                                 required
                                             >
                                                 {states.map((item) => (
-                                                    <MenuItem key={item.code} value={item.code}>{item.name}</MenuItem>
+                                                    <MenuItem key={item.code} value={item.code}>
+                                                        {item.name}
+                                                    </MenuItem>
                                                 ))}
                                             </Select>
                                         </FormControl>

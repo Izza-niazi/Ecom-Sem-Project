@@ -285,7 +285,7 @@ const ProductDetails = () => {
                                     {Array(3).fill("").map((el, i) => (
                                         <p className="text-sm flex items-center gap-1" key={i}>
                                             <span className="text-primary-lightGreen"><LocalOfferIcon sx={{ fontSize: "20px" }} /></span>
-                                            <span className="ml-2 font-medium">Bank offer</span> 15% instant discount on first izzmarket Pay Later order of Rs 500 and above <Link className="font-medium text-sky-400 hover:text-sky-300" to="/">T&amp;C</Link>
+                                            <span className="ml-2 font-medium">Bank offer</span> 15% instant discount on first izzmarket Pay Later order of PKR 500 and above <Link className="font-medium text-sky-400 hover:text-sky-300" to="/">T&amp;C</Link>
                                         </p>
                                     ))}
                                     {/* <!-- banks offers --> */}

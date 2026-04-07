@@ -40,12 +40,6 @@ function App() {
 
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  // const [stripeApiKey, setStripeApiKey] = useState("");
-
-  // async function getStripeApiKey() {
-  //   const { data } = await axios.get('/api/v1/stripeapikey');
-  //   setStripeApiKey(data.stripeApiKey);
-  // }
 
   useEffect(() => {
     WebFont.load({
@@ -60,7 +54,6 @@ function App() {
 
   useEffect(() => {
     dispatch(loadUser());
-    // getStripeApiKey();
   }, [dispatch]);
 
   // always scroll to top on route/path change
@@ -109,11 +102,7 @@ function App() {
 
         <Route path="/process/payment" element={
           <ProtectedRoute>
-            {/* // stripeApiKey && ( */}
-            {/* // <Elements stripe={loadStripe(stripeApiKey)}> */}
             <Payment />
-            {/* // </Elements> */}
-            {/* ) */}
           </ProtectedRoute>
         } ></Route>
 
