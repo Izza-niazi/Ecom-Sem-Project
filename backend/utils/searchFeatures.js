@@ -14,6 +14,7 @@ class SearchFeatures {
         this.query = this.query.find({
             $or: [
                 { name: regex },
+                { description: regex },
                 { category: regex },
                 { 'brand.name': regex },
             ],

@@ -35,6 +35,7 @@ import ReviewsTable from './components/Admin/ReviewsTable';
 import ActivityTable from './components/Admin/ActivityTable';
 import Wishlist from './components/Wishlist/Wishlist';
 import NotFound from './components/NotFound';
+import ShopChat from './components/Layouts/ShopChat';
 
 function App() {
 
@@ -235,6 +236,7 @@ function App() {
         <Route path="*" element={<NotFound />}></Route>
 
       </Routes>
+      <ShopChat />
       <Footer />
     </>
   );

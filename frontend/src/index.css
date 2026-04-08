@@ -6,10 +6,12 @@
   html {
     @apply antialiased;
   }
+
   body {
     @apply bg-app-page text-slate-100 min-h-screen;
     font-family: "Plus Jakarta Sans", "Roboto", system-ui, sans-serif;
   }
+
   ::selection {
     @apply bg-sky-500/30 text-white;
   }
@@ -24,16 +26,12 @@
 
 /* login / register side panel */
 .loginSidebar {
-  background-image: radial-gradient(
-      ellipse 120% 80% at 20% 20%,
+  background-image: radial-gradient(ellipse 120% 80% at 20% 20%,
       rgba(56, 189, 248, 0.18),
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse 90% 60% at 80% 90%,
+      transparent 55%),
+    radial-gradient(ellipse 90% 60% at 80% 90%,
       rgba(6, 182, 212, 0.14),
-      transparent 50%
-    ),
+      transparent 50%),
     linear-gradient(165deg, #0f172a 0%, #020617 50%, #0c1220 100%);
   background-position: center;
   background-repeat: no-repeat;
@@ -53,10 +51,12 @@
   border: 1px solid rgba(148, 163, 184, 0.2);
   z-index: 1;
 }
+
 .slick-prev {
   left: 0;
   border-radius: 0 5px 5px 0;
 }
+
 .slick-next {
   right: 0;
   border-radius: 5px 0 0 5px;
@@ -72,23 +72,28 @@
   margin: 0 -6px;
   padding: 4px 0 8px;
 }
+
 @media (min-width: 640px) {
   .home-product-slider .slick-list {
     margin: 0 -8px;
     padding: 8px 0 12px;
   }
 }
-.home-product-slider .slick-slide > div {
+
+.home-product-slider .slick-slide>div {
   height: 100%;
 }
+
 .home-product-slick .slick-track {
   display: flex !important;
   align-items: stretch;
 }
+
 .home-product-slick .slick-slide {
   height: auto;
 }
-.home-product-slick .slick-slide > div {
+
+.home-product-slick .slick-slide>div {
   height: 100%;
 }
 
@@ -104,4 +109,23 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.shop-chat-input {
+  color: #e2e8f0 !important;
+  background-color: #0f172a !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+}
+
+.shop-chat-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1;
+}
+
+.shop-chat-input:-webkit-autofill,
+.shop-chat-input:-webkit-autofill:hover,
+.shop-chat-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e2e8f0 !important;
+  box-shadow: 0 0 0 1000px #0f172a inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }

@@ -79,7 +79,8 @@ const Products = () => {
     const [categoryToggle, setCategoryToggle] = useState(true);
     const [ratingsToggle, setRatingsToggle] = useState(true);
 
-    const { products, loading, error, resultPerPage, filteredProductsCount } = useSelector((state) => state.products);
+    const { products, loading, error, resultPerPage, filteredProductsCount, searchRelaxed, searchRelaxedMode } =
+        useSelector((state) => state.products);
     const keyword = params.keyword;
 
     const brand = useMemo(() => readBrandFromSearch(location.search), [location.search]);
@@ -272,6 +273,22 @@ const Products = () => {
 
                     {/* <!-- search column --> */}
                     <div className="flex-1">
+                        {!loading && products?.length > 0 && searchRelaxed && (
+                            <div className="mb-3 rounded-md border border-amber-500/40 bg-amber-950/40 px-3 py-2 text-xs text-amber-100/90">
+                                {searchRelaxedMode === 'category_browse' ? (
+                                    <>
+                                        Your search words did not match any product title or description. Showing
+                                        products in <strong className="font-semibold">{category || 'this category'}</strong>{' '}
+                                        with your other filters instead.
+                                    </>
+                                ) : (
+                                    <>
+                                        No exact match with the suggested category/brand filters. Showing results for
+                                        your keywords and other filters instead.
+                                    </>
+                                )}
+                            </div>
+                        )}
 
                         {!loading && products?.length === 0 && (
                             <div className="flex flex-col items-center justify-center gap-3 bg-app-card shadow-sm rounded-sm p-6 sm:p-16">

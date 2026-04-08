@@ -34,9 +34,11 @@ const product = require('./routes/productRoute');
 const order = require('./routes/orderRoute');
 const payment = require('./routes/paymentRoute');
 const recommendation = require('./routes/recommendationRoute');
+const searchNl = require('./routes/searchNlRoute');
 
 app.use('/api/v1', user);
 app.use('/api/v1', product);
+app.use('/api/v1', searchNl);
 app.use('/api/v1', order);
 app.use('/api/v1', payment);
 app.use('/api/v1', recommendation);

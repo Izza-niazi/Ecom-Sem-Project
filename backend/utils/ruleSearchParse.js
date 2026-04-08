@@ -1,6 +1,5 @@
 /**
- * Rule-based natural language → structured search (PK storefront: treat $ as PKR amount).
- * Server-side Groq/Llama is preferred; this is the offline fallback.
+ * Rule-based NL → search fields (PKR). Used when Groq is unavailable or fails.
  */
 
 const FILLER =
@@ -58,7 +57,7 @@ function parseBrandHint(s) {
     return '';
 }
 
-export function parseNaturalLanguageSearch(raw) {
+function parseNaturalLanguageSearch(raw) {
     let s = String(raw || '').trim();
     if (!s) {
         return {
@@ -144,40 +143,37 @@ export function parseNaturalLanguageSearch(raw) {
     };
 }
 
-/** Build `/products[/keyword][?query]` for React Router. */
-export function buildProductsSearchPath(parsed) {
-    const { keyword, maxPrice, minPrice, category, brand, minRating } = parsed;
-    const q = new URLSearchParams();
-    if (category) {
-        q.set('category', category);
-    }
-    if (brand) {
-        q.set('brand', brand);
-    }
-    if (maxPrice != null && Number.isFinite(maxPrice)) {
-        q.set('maxPrice', String(Math.round(maxPrice)));
-    }
-    if (minPrice != null && Number.isFinite(minPrice)) {
-        q.set('minPrice', String(Math.round(minPrice)));
-    }
-    if (minRating != null && Number.isFinite(minRating) && minRating > 0) {
-        q.set('ratings', String(Math.round(minRating)));
-    }
-    const qs = q.toString();
-    const pathKeyword = keyword ? `/${encodeURIComponent(keyword)}` : '';
-    return `/products${pathKeyword}${qs ? `?${qs}` : ''}`;
+function normalizeSearch(obj) {
+    const o = obj || {};
+    return {
+        keyword: String(o.keyword || '').trim(),
+        category: String(o.category || '').trim(),
+        brand: String(o.brand || '').trim(),
+        minPrice: o.minPrice != null && Number.isFinite(Number(o.minPrice)) ? Number(o.minPrice) : null,
+        maxPrice: o.maxPrice != null && Number.isFinite(Number(o.maxPrice)) ? Number(o.maxPrice) : null,
+        minRating:
+            o.minRating != null && Number.isFinite(Number(o.minRating))
+                ? Math.min(5, Math.max(0, Number(o.minRating)))
+                : null,
+    };
 }
 
-/** True if navigating would apply any filter beyond “all products”. */
-export function hasSearchFilters(search) {
-    if (!search || typeof search !== 'object') return false;
-    const s = search;
-    return (
-        Boolean(String(s.keyword || '').trim()) ||
-        Boolean(String(s.category || '').trim()) ||
-        Boolean(String(s.brand || '').trim()) ||
-        (s.minPrice != null && Number.isFinite(Number(s.minPrice))) ||
-        (s.maxPrice != null && Number.isFinite(Number(s.maxPrice))) ||
-        (s.minRating != null && Number(s.minRating) > 0)
-    );
+function buildReplyFromSearch(search) {
+    const parts = [];
+    if (search.keyword) parts.push(`“${search.keyword}”`);
+    if (search.category) parts.push(`in ${search.category}`);
+    if (search.brand) parts.push(`brand ${search.brand}`);
+    if (search.maxPrice != null) parts.push(`under PKR ${Math.round(search.maxPrice)}`);
+    if (search.minPrice != null) parts.push(`from PKR ${Math.round(search.minPrice)}`);
+    if (search.minRating != null) parts.push(`${search.minRating}+ stars`);
+    if (parts.length === 0) {
+        return 'Tell me what you are looking for (product, price, category, or brand).';
+    }
+    return `Here is a search for ${parts.join(', ')}. Tap “View products” to see results.`;
 }
+
+module.exports = {
+    parseNaturalLanguageSearch,
+    normalizeSearch,
+    buildReplyFromSearch,
+};

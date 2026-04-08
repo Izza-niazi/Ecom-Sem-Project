@@ -2,7 +2,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import axios from 'axios';
 import Logo from '../Logo';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, matchPath } from 'react-router-dom';
 import { buildProductsSearchPath, parseNaturalLanguageSearch } from '../../../utils/nlSearch';
 
 const DEBOUNCE_MS = 280;
@@ -13,8 +13,19 @@ const Searchbar = () => {
     const [loadingSuggest, setLoadingSuggest] = useState(false);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [nlBusy, setNlBusy] = useState(false);
     const wrapRef = useRef(null);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const m = matchPath({ path: '/products/:keyword', end: true }, location.pathname);
+        if (m?.params?.keyword) {
+            setKeyword(decodeURIComponent(m.params.keyword).replace(/\+/g, ' '));
+        } else if (location.pathname === '/products') {
+            setKeyword('');
+        }
+    }, [location.pathname]);
 
     useEffect(() => {
         const onDoc = (e) => {
@@ -59,8 +70,23 @@ const Searchbar = () => {
         return () => clearTimeout(id);
     }, [keyword, fetchSuggest]);
 
-    const goParsed = (raw) => {
-        const parsed = parseNaturalLanguageSearch(raw);
+    const goParsed = async (raw) => {
+        const t = String(raw || '').trim();
+        if (!t) return;
+        setNlBusy(true);
+        try {
+            const { data } = await axios.post('/api/v1/search/nl', { q: t });
+            if (data.success && data.search) {
+                navigate(buildProductsSearchPath(data.search));
+                setOpen(false);
+                return;
+            }
+        } catch {
+            /* fall back to rules */
+        } finally {
+            setNlBusy(false);
+        }
+        const parsed = parseNaturalLanguageSearch(t);
         navigate(buildProductsSearchPath(parsed));
         setOpen(false);
     };
@@ -110,7 +136,12 @@ const Searchbar = () => {
                     aria-expanded={hasSuggestions}
                     aria-controls="search-suggestions-listbox"
                 />
-                <button type="submit" className="text-sky-400 transition hover:text-sky-300" aria-label="Search">
+                <button
+                    type="submit"
+                    disabled={nlBusy}
+                    className="text-sky-400 transition hover:text-sky-300 disabled:opacity-40"
+                    aria-label="Search"
+                >
                     <SearchIcon />
                 </button>
             </form>

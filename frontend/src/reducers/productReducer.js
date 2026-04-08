@@ -54,6 +54,8 @@ export const productsReducer = (
                 ...state,
                 loading: true,
                 products: [],
+                searchRelaxed: false,
+                searchRelaxedMode: null,
             };
         case SLIDER_PRODUCTS_REQUEST:
             return {
@@ -69,6 +71,8 @@ export const productsReducer = (
                 productsCount: payload.productsCount,
                 resultPerPage: payload.resultPerPage,
                 filteredProductsCount: payload.filteredProductsCount,
+                searchRelaxed: Boolean(payload.searchRelaxed),
+                searchRelaxedMode: payload.searchRelaxedMode || null,
             };
         case ADMIN_PRODUCTS_SUCCESS:
         case SLIDER_PRODUCTS_SUCCESS:
