@@ -43,6 +43,13 @@ exports.getSingleOrderDetails = asyncErrorHandler(async (req, res, next) => {
         return next(new ErrorHandler("Order Not Found", 404));
     }
 
+    if (
+        req.user.role !== "admin" &&
+        String(order.user._id || order.user) !== String(req.user._id)
+    ) {
+        return next(new ErrorHandler("Order Not Found", 404));
+    }
+
     res.status(200).json({
         success: true,
         order,

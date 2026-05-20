@@ -5,6 +5,8 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import GroupIcon from '@mui/icons-material/Group';
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import TimelineIcon from '@mui/icons-material/Timeline';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import ArticleIcon from '@mui/icons-material/Article';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
@@ -52,6 +54,16 @@ const navMenu = [
         ref: "/admin/activity",
     },
     {
+        icon: <TravelExploreIcon />,
+        label: "SEO Manager",
+        ref: "/admin/seo",
+    },
+    {
+        icon: <ArticleIcon />,
+        label: "Blog",
+        ref: "/admin/blogs",
+    },
+    {
         icon: <AccountBoxIcon />,
         label: "My Profile",
         ref: "/account",
@@ -77,7 +89,7 @@ const Sidebar = ({ activeTab, setToggleSidebar }) => {
     }
 
     return (
-        <aside className="sidebar fixed left-0 z-10 block max-h-screen min-h-screen w-3/4 overflow-x-hidden border-r border-app-border bg-slate-950 pb-14 text-slate-100 sm:z-0 sm:w-1/5">
+        <aside className="sidebar fixed left-0 z-10 block max-h-screen min-h-screen w-3/4 overflow-x-hidden border-r border-app-border bg-black pb-14 text-slate-100 sm:z-0 sm:w-1/5">
             <div className="mx-3.5 my-4 flex items-center gap-3 rounded-lg border border-app-border bg-app-card p-2 shadow-lg shadow-black/30">
                 <Avatar
                     alt="Avatar"
@@ -87,7 +99,7 @@ const Sidebar = ({ activeTab, setToggleSidebar }) => {
                     <span className="font-medium text-lg">{user.name}</span>
                     <span className="text-sm text-slate-400">{user.email}</span>
                 </div>
-                <button onClick={()=>setToggleSidebar(false)} className="ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 sm:hidden">
+                <button onClick={()=>setToggleSidebar(false)} className="ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-neutral-950 sm:hidden">
                     <CloseIcon/>
                 </button>
             </div>
@@ -103,7 +115,7 @@ const Sidebar = ({ activeTab, setToggleSidebar }) => {
                                     <span>{label}</span>
                                 </button>
                             ) : (
-                                <Link to={ref} className={`${activeTab === index ? "border-l-2 border-sky-400 bg-white/5" : "hover:bg-white/5"} flex items-center gap-3 px-4 py-3 font-medium`}>
+                                <Link to={ref} className={`${activeTab === index ? "border-l-2 border-neutral-500 bg-white/5" : "hover:bg-white/5"} flex items-center gap-3 px-4 py-3 font-medium`}>
                                     <span>{icon}</span>
                                     <span>{label}</span>
                                 </Link>

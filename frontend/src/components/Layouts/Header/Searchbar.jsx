@@ -113,12 +113,9 @@ const Searchbar = () => {
         open && keyword.trim().length >= 2 && (products.length > 0 || categories.length > 0 || loadingSuggest);
 
     return (
-        <div ref={wrapRef} className="relative flex w-full sm:w-9/12">
-            <form
-                onSubmit={handleSubmit}
-                className="flex w-full items-center justify-between overflow-hidden rounded-md border border-app-border bg-app-card px-2 py-1.5 shadow-inner shadow-black/20 sm:px-4"
-            >
-                <Logo className="mr-2 shrink-0" />
+        <div ref={wrapRef} className="relative flex w-full min-w-0 max-w-3xl flex-1">
+            <form onSubmit={handleSubmit} className="search-glass flex w-full items-center gap-2 px-2 sm:px-3">
+                <Logo className="mr-1 shrink-0 sm:mr-2" />
                 <input
                     id="header-search-input"
                     value={keyword}
@@ -127,7 +124,7 @@ const Searchbar = () => {
                         setOpen(true);
                     }}
                     onFocus={() => setOpen(true)}
-                    className="flex-1 border-none bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
+                    className="min-w-0 flex-1 border-none bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
                     type="text"
                     placeholder='Try "shoes under 5000" or product name…'
                     autoComplete="off"
@@ -139,7 +136,7 @@ const Searchbar = () => {
                 <button
                     type="submit"
                     disabled={nlBusy}
-                    className="text-sky-400 transition hover:text-sky-300 disabled:opacity-40"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-neutral-300 transition hover:bg-white/15 hover:text-neutral-200 disabled:opacity-40"
                     aria-label="Search"
                 >
                     <SearchIcon />
@@ -149,7 +146,7 @@ const Searchbar = () => {
             {hasSuggestions ? (
                 <div
                     id="search-suggestions-listbox"
-                    className="absolute left-0 right-0 top-full z-20 mt-1 max-h-80 overflow-auto rounded-lg border border-app-border bg-app-card py-1 shadow-2xl shadow-black/50"
+                    className="absolute left-0 right-0 top-full z-50 mt-2 max-h-80 overflow-auto rounded-2xl border border-white/[0.08] bg-neutral-950/95 py-2 shadow-2xl shadow-black/60 backdrop-blur-xl"
                     role="listbox"
                     aria-labelledby="header-search-input"
                 >
@@ -166,7 +163,7 @@ const Searchbar = () => {
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => selectCategory(c)}
                         >
-                            <span className="rounded bg-sky-500/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-300">
+                            <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-200">
                                 Category
                             </span>
                             {c}

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import Categories from '../Layouts/Categories';
+import MinCategory from '../Layouts/MinCategory';
 import BrowseAllBanner from './BrowseAllBanner';
+import BlogHomeBanner from './BlogHomeBanner';
 import ProductSlider from './ProductSlider/ProductSlider';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearErrors, getSliderProducts, getHomeRecommendations } from '../../actions/productAction';
@@ -11,7 +12,8 @@ import {
     HOME_META_DESCRIPTION,
     HOME_META_KEYWORDS,
 } from '../../constants/brand';
-import { absoluteUrl } from '../../utils/seo';
+import { mergePageMeta } from '../../utils/seo';
+import { usePageSeo } from '../../hooks/usePageSeo';
 
 const Home = () => {
 
@@ -19,6 +21,7 @@ const Home = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   const { error } = useSelector((state) => state.products);
+  const { seo: savedSeo } = usePageSeo('home');
 
   useEffect(() => {
     if (error) {
@@ -29,19 +32,33 @@ const Home = () => {
     dispatch(getHomeRecommendations());
   }, [dispatch, error, enqueueSnackbar]);
 
+  const meta = mergePageMeta(savedSeo, {
+    title: HOME_META_TITLE,
+    description: HOME_META_DESCRIPTION,
+    keywords: HOME_META_KEYWORDS,
+    canonicalPath: '/',
+    ogTitle: HOME_META_TITLE,
+    ogDescription: HOME_META_DESCRIPTION,
+  });
+
   return (
     <>
       <MetaData
-        title={HOME_META_TITLE}
-        description={HOME_META_DESCRIPTION}
-        keywords={HOME_META_KEYWORDS}
-        canonical={absoluteUrl('/')}
-        ogTitle={HOME_META_TITLE}
-        ogDescription={HOME_META_DESCRIPTION}
+        title={meta.title}
+        description={meta.description}
+        keywords={meta.keywords}
+        canonical={meta.canonical}
+        ogTitle={meta.ogTitle}
+        ogDescription={meta.ogDescription}
+        ogImage={meta.ogImage}
+        robots={meta.robots}
       />
-      <Categories />
+      <MinCategory />
       <BrowseAllBanner />
-      <main className="mt-4 flex flex-col gap-3 px-2 sm:mt-6">
+      <div className="mt-4 sm:mt-6">
+        <BlogHomeBanner />
+      </div>
+      <main className="mx-auto mt-4 flex max-w-7xl flex-col gap-6 px-3 pb-8 sm:mt-6 sm:px-6">
         <ProductSlider
           recommendationSource="youMayAlsoLike"
           sectionIndex={0}

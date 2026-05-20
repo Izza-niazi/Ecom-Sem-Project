@@ -39,6 +39,9 @@ let initialState = {
         shippingInfo: localStorage.getItem("shippingInfo")
             ? JSON.parse(localStorage.getItem("shippingInfo"))
             : {},
+        coupon: localStorage.getItem('cartCoupon')
+            ? JSON.parse(localStorage.getItem('cartCoupon'))
+            : null,
     },
     saveForLater: {
         saveForLaterItems: localStorage.getItem('saveForLaterItems')

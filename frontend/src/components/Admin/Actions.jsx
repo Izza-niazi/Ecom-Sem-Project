@@ -15,11 +15,25 @@ const Actions = ({ id, deleteHandler, name, editRoute }) => {
         setOpen(false);
     };
 
+    const editTo =
+        editRoute?.startsWith('/')
+            ? editRoute
+            : `/admin/${editRoute}/${id}`;
+
+    const handleDelete = async () => {
+        try {
+            await deleteHandler(id);
+            handleClose();
+        } catch {
+            /* snackbar handled by parent */
+        }
+    };
+
     return (
         <>
             <div className="flex justify-between items-center gap-3">
                 {editRoute !== "review" && (
-                    <Link to={`/admin/${editRoute}/${id}`} className="text-blue-600 hover:bg-blue-200 p-1 rounded-full bg-blue-100">
+                    <Link to={editTo} className="text-blue-600 hover:bg-blue-200 p-1 rounded-full bg-blue-100">
                         <EditIcon />
                     </Link>
                 )}
@@ -41,7 +55,7 @@ const Actions = ({ id, deleteHandler, name, editRoute }) => {
                 </DialogContent>
                 <DialogActions>
                     <button onClick={handleClose} className="py-2 px-6 rounded shadow bg-gray-400 hover:bg-gray-500 text-white">Cancel</button>
-                    <button onClick={() => deleteHandler(id)} className="py-2 px-6 ml-4 rounded bg-red-600 hover:bg-red-700 text-white shadow">Delete</button>
+                    <button type="button" onClick={handleDelete} className="py-2 px-6 ml-4 rounded bg-red-600 hover:bg-red-700 text-white shadow">Delete</button>
                 </DialogActions>
             </Dialog>
         </>

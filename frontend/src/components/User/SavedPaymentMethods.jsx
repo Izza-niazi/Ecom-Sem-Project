@@ -60,9 +60,9 @@ export default function SavedPaymentMethods() {
             {methods.map((pm) => (
                 <li
                     key={pm.id}
-                    className="flex items-center gap-4 rounded-lg border border-slate-600/50 bg-slate-900/40 px-4 py-3"
+                    className="flex items-center gap-4 rounded-lg border border-slate-600/50 bg-neutral-950/40 px-4 py-3"
                 >
-                    <CreditCardIcon className="shrink-0 text-sky-400" fontSize="medium" />
+                    <CreditCardIcon className="shrink-0 text-neutral-300" fontSize="medium" />
                     <div>
                         <p className="text-sm font-medium capitalize text-slate-200">
                             {pm.brand} •••• {pm.last4}

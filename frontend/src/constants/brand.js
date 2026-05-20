@@ -1,4 +1,4 @@
-export const APP_NAME = "izzumarket";
+export const APP_NAME = "izzmarket";
 export const APP_TAGLINE = "Your favourite marketplace";
 
 export const metaTitle = (page) => `${page} | ${APP_NAME}`;
@@ -15,3 +15,8 @@ export const HOME_META_KEYWORDS =
 
 export const PRODUCTS_META_DESCRIPTION =
   "Browse our full catalog — filter by category, price, and ratings. Secure checkout on izzumarket.";
+
+export const BLOG_META_TITLE = metaTitle("Blog — shopping guides & tips");
+
+export const BLOG_META_DESCRIPTION =
+  "Read shopping guides, delivery tips, and product advice from izzmarket. Stay informed and shop smarter online in Pakistan.";

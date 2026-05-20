@@ -6,6 +6,17 @@ const fileUpload = require('express-fileupload');
 const errorMiddleware = require('./middlewares/error');
 
 const app = express();
+const mongoose = require('mongoose');
+
+app.get('/api/health', (req, res) => {
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  const state = states[mongoose.connection.readyState] || 'unknown';
+  res.json({
+    ok: true,
+    port: process.env.PORT || 4000,
+    db: state,
+  });
+});
 
 // config
 if (process.env.NODE_ENV !== 'production') {
@@ -35,10 +46,16 @@ const order = require('./routes/orderRoute');
 const payment = require('./routes/paymentRoute');
 const recommendation = require('./routes/recommendationRoute');
 const searchNl = require('./routes/searchNlRoute');
+const pageSeo = require('./routes/pageSeoRoute');
+const shopChat = require('./routes/shopChatRoute');
+const blog = require('./routes/blogRoute');
 
 app.use('/api/v1', user);
 app.use('/api/v1', product);
 app.use('/api/v1', searchNl);
+app.use('/api/v1', pageSeo);
+app.use('/api/v1', shopChat);
+app.use('/api/v1', blog);
 app.use('/api/v1', order);
 app.use('/api/v1', payment);
 app.use('/api/v1', recommendation);

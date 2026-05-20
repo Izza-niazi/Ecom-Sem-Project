@@ -91,10 +91,9 @@ const Register = () => {
             <MetaData title={metaTitle('Register')} />
 
             {loading && <BackdropLoader />}
-            <main className="w-full mt-12 sm:pt-20 sm:mt-0">
+            <main className="mx-auto mt-16 w-full max-w-4xl px-3 pb-12 sm:mt-24 sm:px-4">
 
-                {/* <!-- row --> */}
-                <div className="flex sm:w-4/6 sm:mt-4 m-auto mb-7 bg-app-card shadow-lg">
+                <div className="glass-panel fun-noise flex overflow-hidden shadow-card sm:mt-4 sm:mb-8">
 
                     <FormSidebar
                         title="Looks like you're new here!"
@@ -138,7 +137,7 @@ const Register = () => {
 
                                 {/* <!-- gender input --> */}
                                 <div className="flex gap-4 items-center">
-                                    <h2 className="text-md">Your Gender :</h2>
+                                    <h2 className="text-sm font-medium text-slate-300">Your gender</h2>
                                     <div className="flex items-center gap-6" id="radioInput">
                                         <RadioGroup
                                             row
@@ -182,7 +181,7 @@ const Register = () => {
                                             src={avatarPreview}
                                             sx={{ width: 56, height: 56 }}
                                         />
-                                        <label className="rounded font-medium bg-gray-400 text-center cursor-pointer text-white w-full py-2 px-2.5 shadow hover:shadow-lg">
+                                        <label className="btn-secondary w-full cursor-pointer text-center !py-2.5">
                                             <input
                                                 type="file"
                                                 name="avatar"
@@ -193,10 +192,10 @@ const Register = () => {
                                             Choose File (optional)
                                         </label>
                                     </div>
-                                    <p className="text-xs text-gray-500">You can skip this — a default avatar will be used.</p>
+                                    <p className="text-xs text-slate-500">Optional — a default avatar will be used if you skip.</p>
                                 </div>
-                                <button type="submit" className="text-white py-3 w-full bg-primary-orange shadow hover:shadow-lg rounded-sm font-medium">Signup</button>
-                                <Link to="/login" className="hover:bg-gray-50 text-primary-blue text-center py-3 w-full shadow border rounded-sm font-medium">Existing User? Log in</Link>
+                                <button type="submit" className="btn-accent w-full !py-3">Create account</button>
+                                <Link to="/login" className="btn-secondary w-full text-center !py-3">Already have an account? Log in</Link>
                             </div>
 
                         </form>

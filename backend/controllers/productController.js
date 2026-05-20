@@ -3,50 +3,19 @@ const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
 const SearchFeatures = require("../utils/searchFeatures");
 const ErrorHandler = require("../utils/errorHandler");
 const { uploadImage, destroyImage } = require("../utils/localImageUpload");
+const { normalizeSeo } = require("../utils/normalizeSeo");
 
 function normalizeSeoBody(body) {
   if (body.seo == null || body.seo === "") {
     delete body.seo;
     return;
   }
-  let raw = body.seo;
-  if (typeof raw === "string") {
-    try {
-      raw = JSON.parse(raw);
-    } catch {
-      delete body.seo;
-      return;
-    }
-  }
-  if (!raw || typeof raw !== "object") {
+  const normalized = normalizeSeo(body.seo);
+  if (!normalized) {
     delete body.seo;
     return;
   }
-  const robots =
-    String(raw.robots || "index, follow")
-      .trim()
-      .slice(0, 80) || "index, follow";
-  body.seo = {
-    pageTitle: String(raw.pageTitle || "")
-      .trim()
-      .slice(0, 70),
-    metaDescription: String(raw.metaDescription || "")
-      .trim()
-      .slice(0, 320),
-    keywords: String(raw.keywords || "")
-      .trim()
-      .slice(0, 500),
-    ogTitle: String(raw.ogTitle || "")
-      .trim()
-      .slice(0, 95),
-    ogDescription: String(raw.ogDescription || "")
-      .trim()
-      .slice(0, 200),
-    robots,
-    canonicalPath: String(raw.canonicalPath || "")
-      .trim()
-      .slice(0, 500),
-  };
+  body.seo = normalized;
 }
 
 // Get All Products
@@ -461,5 +430,22 @@ exports.deleteReview = asyncErrorHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+  });
+});
+
+/** POST /api/v1/admin/products/seed — demo catalog + blog link refresh */
+exports.seedDemoProducts = asyncErrorHandler(async (req, res, next) => {
+  const { seedProducts } = require("../utils/seedProducts");
+  const { syncBlogPostsWithProductLinks } = require("../utils/syncBlogProductLinks");
+
+  const { created, updated, linkMap } = await seedProducts({ updateExisting: true });
+  const blogSync = await syncBlogPostsWithProductLinks(linkMap);
+
+  res.status(200).json({
+    success: true,
+    message: `Products: ${created} new, ${updated} updated. Blogs: ${blogSync.updated} link refresh.`,
+    products: { created, updated },
+    blogs: blogSync,
+    productLinks: Object.keys(linkMap).length,
   });
 });

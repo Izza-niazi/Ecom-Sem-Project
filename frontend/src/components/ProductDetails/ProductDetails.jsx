@@ -11,7 +11,6 @@ import Loader from '../Layouts/Loader';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import StarIcon from '@mui/icons-material/Star';
-import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import CachedIcon from '@mui/icons-material/Cached';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
@@ -183,9 +182,11 @@ const ProductDetails = () => {
         const path =
             (seo.canonicalPath && seo.canonicalPath.trim()) || `/product/${product._id}`;
         const canonical = absoluteUrl(path);
-        const ogImage = product.images?.[0]?.url
-            ? absoluteUrl(resolveProductImageUrl(product.images[0].url))
-            : '';
+        const ogImage =
+            (seo.ogImage && seo.ogImage.trim()) ||
+            (product.images?.[0]?.url
+                ? absoluteUrl(resolveProductImageUrl(product.images[0].url))
+                : '');
         const robots = (seo.robots && seo.robots.trim()) || 'index, follow';
         const jsonLd = buildProductJsonLd(product, {
             description: metaDesc,
@@ -217,7 +218,7 @@ const ProductDetails = () => {
                     <main className="mt-12 sm:mt-0">
 
                         {/* <!-- product image & description container --> */}
-                        <div className="w-full flex flex-col sm:flex-row bg-app-card sm:p-2 relative">
+                        <div className="glass-panel relative mx-auto flex w-full max-w-7xl flex-col sm:flex-row sm:p-4">
 
                             {/* <!-- image wrapper --> */}
                             <div className="w-full sm:w-2/5 sm:sticky top-16 sm:h-screen">
@@ -237,14 +238,22 @@ const ProductDetails = () => {
                                     <div className="w-full flex gap-3">
                                         {/* <!-- add to cart btn --> */}
                                         {product.stock > 0 && (
-                                            <button onClick={itemInCart ? goToCart : addToCartHandler} className="p-4 w-1/2 flex items-center justify-center gap-2 text-white bg-primary-yellow rounded-sm shadow hover:shadow-lg">
+                                            <button onClick={itemInCart ? goToCart : addToCartHandler} className="btn-secondary flex w-1/2 items-center justify-center gap-2 !py-3.5">
                                                 <ShoppingCartIcon />
-                                                {itemInCart ? "GO TO CART" : "ADD TO CART"}
+                                                {itemInCart ? 'Go to cart' : 'Add to cart'}
                                             </button>
                                         )}
-                                        <button onClick={buyNow} disabled={product.stock < 1 ? true : false} className={product.stock < 1 ? "p-4 w-full flex items-center justify-center gap-2 text-white bg-red-600 cursor-not-allowed rounded-sm shadow hover:shadow-lg" : "p-4 w-1/2 flex items-center justify-center gap-2 text-white bg-primary-orange rounded-sm shadow hover:shadow-lg"}>
+                                        <button
+                                            onClick={buyNow}
+                                            disabled={product.stock < 1}
+                                            className={
+                                                product.stock < 1
+                                                    ? 'flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-700 px-4 py-3.5 text-sm font-semibold text-slate-400'
+                                                    : 'btn-accent flex w-1/2 items-center justify-center gap-2 !py-3.5'
+                                            }
+                                        >
                                             <FlashOnIcon />
-                                            {product.stock < 1 ? "OUT OF STOCK" : "BUY NOW"}
+                                            {product.stock < 1 ? 'Out of stock' : 'Buy now'}
                                         </button>
                                         {/* <!-- add to cart btn --> */}
                                     </div>
@@ -260,35 +269,27 @@ const ProductDetails = () => {
                                 {/* <!-- whole product description --> */}
                                 <div className="flex flex-col gap-2 mb-4">
 
-                                    <h2 className="text-xl">{product.name}</h2>
-                                    {/* <!-- rating badge --> */}
-                                    <span className="text-sm text-gray-500 font-medium flex gap-2 items-center">
-                                        <span className="text-xs px-1.5 py-0.5 bg-primary-green rounded-sm text-white flex items-center gap-0.5">{product.ratings && product.ratings.toFixed(1)} <StarIcon sx={{ fontSize: "12px" }} /></span>
-                                        <span>{product.numOfReviews} Reviews</span>
+                                    <h2 className="font-serif text-2xl font-semibold text-white sm:text-3xl">{product.name}</h2>
+                                    <span className="flex items-center gap-2 text-sm font-medium text-slate-400">
+                                        <span className="badge-rating text-xs">
+                                            {product.ratings && product.ratings.toFixed(1)}{' '}
+                                            <StarIcon sx={{ fontSize: 12 }} />
+                                        </span>
+                                        <span>{product.numOfReviews} reviews</span>
                                     </span>
-                                    {/* <!-- rating badge --> */}
 
-                                    {/* <!-- price desc --> */}
-                                    <span className="text-primary-green text-sm font-medium">Special Price</span>
-                                    <div className="flex items-baseline gap-2 text-3xl font-medium">
-                                        <span className="text-gray-800">{formatRs(product.price)}</span>
-                                        <span className="text-base text-gray-500 line-through">{formatRs(product.cuttedPrice)}</span>
-                                        <span className="text-base text-primary-green">{getDiscount(product.price, product.cuttedPrice)}%&nbsp;off</span>
+                                    <span className="text-sm font-medium text-emerald-400">Special price</span>
+                                    <div className="flex flex-wrap items-baseline gap-2">
+                                        <span className="text-3xl font-bold text-white">{formatRs(product.price)}</span>
+                                        <span className="text-lg text-slate-500 line-through">{formatRs(product.cuttedPrice)}</span>
+                                        <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-sm font-semibold text-emerald-400">
+                                            {getDiscount(product.price, product.cuttedPrice)}% off
+                                        </span>
                                     </div>
                                     {product.stock <= 10 && product.stock > 0 && (
                                         <span className="text-red-500 text-sm font-medium">Hurry, Only {product.stock} left!</span>
                                     )}
                                     {/* <!-- price desc --> */}
-
-                                    {/* <!-- banks offers --> */}
-                                    <p className="text-md font-medium">Available offers</p>
-                                    {Array(3).fill("").map((el, i) => (
-                                        <p className="text-sm flex items-center gap-1" key={i}>
-                                            <span className="text-primary-lightGreen"><LocalOfferIcon sx={{ fontSize: "20px" }} /></span>
-                                            <span className="ml-2 font-medium">Bank offer</span> 15% instant discount on first izzmarket Pay Later order of PKR 500 and above <Link className="font-medium text-sky-400 hover:text-sky-300" to="/">T&amp;C</Link>
-                                        </p>
-                                    ))}
-                                    {/* <!-- banks offers --> */}
 
                                     {/* <!-- warranty & brand --> */}
                                     <div className="flex gap-8 mt-2 items-center text-sm">
@@ -299,7 +300,7 @@ const ProductDetails = () => {
 
                                     {/* <!-- delivery details --> */}
                                     <div className="flex gap-16 mt-4 items-center text-sm font-medium">
-                                        <p className="text-gray-500">Delivery</p>
+                                        <p className="text-slate-500">Delivery</p>
                                         <span>Delivery by {getDeliveryDate()}</span>
                                     </div>
                                     {/* <!-- delivery details --> */}
@@ -308,7 +309,7 @@ const ProductDetails = () => {
                                     <div className="flex flex-col sm:flex-row justify-between">
                                         {/* <!-- highlights details --> */}
                                         <div className="flex gap-16 mt-4 items-stretch text-sm">
-                                            <p className="text-gray-500 font-medium">Highlights</p>
+                                            <p className="font-medium text-slate-500">Highlights</p>
 
                                             <ul className="list-disc flex flex-col gap-2 w-64">
                                                 {product.highlights?.map((highlight, i) => (
@@ -322,7 +323,7 @@ const ProductDetails = () => {
 
                                         {/* <!-- services details --> */}
                                         <div className="flex gap-16 mt-4 mr-6 items-stretch text-sm">
-                                            <p className="text-gray-500 font-medium">Services</p>
+                                            <p className="font-medium text-slate-500">Services</p>
                                             <ul className="flex flex-col gap-2">
                                                 <li>
                                                     <p className="flex items-center gap-3"><span className="text-primary-blue"><VerifiedUserIcon sx={{ fontSize: "18px" }} /></span> {product.warranty} Year</p>
@@ -341,7 +342,7 @@ const ProductDetails = () => {
 
                                     {/* <!-- seller details --> */}
                                     <div className="flex gap-16 mt-4 items-center text-sm font-medium">
-                                        <p className="text-gray-500">Seller</p>
+                                        <p className="text-slate-500">Seller</p>
                                         <Link className="font-medium text-primary-blue ml-3" to="/">{product.brand && product.brand.name}</Link>
                                     </div>
                                     {/* <!-- seller details --> */}
@@ -387,7 +388,7 @@ const ProductDetails = () => {
                                     <div className="w-full mt-4 rounded-sm border flex flex-col">
                                         <div className="flex justify-between items-center border-b px-6 py-4">
                                             <h1 className="text-2xl font-medium">Ratings & Reviews</h1>
-                                            <button onClick={handleDialogClose} className="shadow bg-primary-yellow text-white px-4 py-2 rounded-sm hover:shadow-lg">Rate Product</button>
+                                            <button onClick={handleDialogClose} className="btn-primary !py-2">Rate product</button>
                                         </div>
 
                                         <Dialog

@@ -44,7 +44,7 @@ const Account = () => {
             {loading ? <Loader /> :
                 <>
                     <MinCategory />
-                    <main className="w-full mt-12 sm:mt-0">
+                    <main className="mx-auto w-full max-w-7xl px-3 pb-12 pt-4 sm:px-4">
 
                         {/* <!-- row --> */}
                         <div className="flex gap-3.5 sm:w-11/12 sm:mt-4 m-auto mb-7">

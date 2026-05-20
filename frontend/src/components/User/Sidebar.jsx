@@ -13,7 +13,7 @@ const linkAccount = (active, children, to) => (
         to={to}
         className={`${
             active
-                ? 'bg-blue-50 font-medium text-primary-blue dark:bg-slate-800/80 dark:text-sky-400'
+                ? 'bg-blue-50 font-medium text-primary-blue dark:bg-slate-800/80 dark:text-neutral-300'
                 : 'hover:bg-blue-50 hover:text-primary-blue dark:hover:bg-slate-800/50'
         } p-3 pl-14`}
     >

@@ -22,7 +22,8 @@ import {
     APP_NAME,
     PRODUCTS_META_DESCRIPTION,
 } from '../../constants/brand';
-import { absoluteUrl } from '../../utils/seo';
+import { absoluteUrl, mergePageMeta } from '../../utils/seo';
+import { usePageSeo } from '../../hooks/usePageSeo';
 import { formatRs } from '../../utils/currency';
 
 function readCategoryFromSearch(search) {
@@ -81,6 +82,7 @@ const Products = () => {
 
     const { products, loading, error, resultPerPage, filteredProductsCount, searchRelaxed, searchRelaxedMode } =
         useSelector((state) => state.products);
+    const { seo: savedProductsSeo } = usePageSeo('products');
     const keyword = params.keyword;
 
     const brand = useMemo(() => readBrandFromSearch(location.search), [location.search]);
@@ -97,6 +99,15 @@ const Products = () => {
           : PRODUCTS_META_DESCRIPTION;
     const listKeywords = [keyword, category, APP_NAME].filter(Boolean).join(', ');
     const canonical = absoluteUrl(`${location.pathname}${location.search}`);
+
+    const meta = mergePageMeta(keyword || category ? null : savedProductsSeo, {
+        title: listTitle,
+        description: listDescription,
+        keywords: listKeywords,
+        canonicalPath: `${location.pathname}${location.search}`,
+        ogTitle: listTitle,
+        ogDescription: listDescription,
+    });
 
     const priceHandler = (e, newPrice) => {
         setPrice(newPrice);
@@ -152,25 +163,26 @@ const Products = () => {
     return (
         <>
             <MetaData
-                title={listTitle}
-                description={listDescription}
-                keywords={listKeywords}
-                canonical={canonical}
-                ogTitle={listTitle}
-                ogDescription={listDescription}
+                title={meta.title}
+                description={meta.description}
+                keywords={meta.keywords}
+                canonical={meta.canonical || canonical}
+                ogTitle={meta.ogTitle}
+                ogDescription={meta.ogDescription}
+                ogImage={meta.ogImage}
+                robots={meta.robots}
             />
 
             <MinCategory />
-            <main className="w-full mt-14 sm:mt-0">
+            <main className="mx-auto w-full max-w-7xl px-3 pb-12 pt-2 sm:px-4">
 
-                {/* <!-- row --> */}
-                <div className="flex gap-3 mt-2 sm:mt-2 sm:mx-3 m-auto mb-7">
+                <div className="mb-7 flex gap-4">
 
                     {/* <!-- sidebar column  --> */}
                     <div className="hidden sm:flex flex-col w-1/5 px-1">
 
                         {/* <!-- nav tiles --> */}
-                        <div className="flex flex-col bg-app-card rounded-sm shadow">
+                        <div className="glass-panel flex flex-col overflow-hidden">
 
                             {/* <!-- filters header --> */}
                             <div className="flex items-center justify-between gap-5 border-b border-app-border px-4 py-2">
@@ -194,9 +206,9 @@ const Products = () => {
                                     />
 
                                     <div className="flex gap-3 items-center justify-between mb-2 min-w-full">
-                                        <span className="flex-1 rounded-sm border border-app-border bg-slate-900/80 px-4 py-1 text-slate-200">{formatRs(price[0])}</span>
+                                        <span className="flex-1 rounded-sm border border-app-border bg-neutral-950/80 px-4 py-1 text-slate-200">{formatRs(price[0])}</span>
                                         <span className="font-medium text-slate-500">to</span>
-                                        <span className="flex-1 rounded-sm border border-app-border bg-slate-900/80 px-4 py-1 text-slate-200">{formatRs(price[1])}</span>
+                                        <span className="flex-1 rounded-sm border border-app-border bg-neutral-950/80 px-4 py-1 text-slate-200">{formatRs(price[1])}</span>
                                     </div>
                                 </div>
                                 {/* price slider filter */}
@@ -291,7 +303,7 @@ const Products = () => {
                         )}
 
                         {!loading && products?.length === 0 && (
-                            <div className="flex flex-col items-center justify-center gap-3 bg-app-card shadow-sm rounded-sm p-6 sm:p-16">
+                            <div className="glass-panel flex flex-col items-center justify-center gap-3 p-6 sm:p-16">
                                 <img draggable="false" className="w-1/2 h-44 object-contain" src="https://static-assets-web.flixcart.com/www/linchpin/fk-cp-zion/img/error-no-search-results_2353c5.png" alt="Search Not Found" />
                                 <h1 className="text-2xl font-medium text-slate-100">Sorry, no results found!</h1>
                                 <p className="text-xl text-center text-primary-grey">Please check the spelling or try searching for something else</p>
@@ -299,9 +311,9 @@ const Products = () => {
                         )}
 
                         {loading ? <Loader /> : (
-                            <div className="flex flex-col gap-2 pb-4 justify-center items-center w-full overflow-hidden bg-app-card">
+                            <div className="section-shell flex w-full flex-col items-center justify-center gap-2 overflow-hidden pb-4">
 
-                                <div className="grid w-full grid-cols-1 place-content-start overflow-hidden border-b border-app-border pb-4 sm:grid-cols-4">
+                                <div className="grid w-full grid-cols-1 place-content-start gap-3 overflow-hidden p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:p-5">
                                     {products?.map((product) => (
                                             <Product {...product} key={product._id} />
                                         ))

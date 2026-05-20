@@ -339,7 +339,7 @@ const UpdateProduct = () => {
                                 {highlights.map((h, i) => (
                                     <li
                                         key={`${i}-${h.slice(0, 24)}`}
-                                        className="flex items-center justify-between gap-2 rounded-md border border-app-border bg-slate-900/50 px-3 py-2 text-sm text-slate-100"
+                                        className="flex items-center justify-between gap-2 rounded-md border border-app-border bg-neutral-950/50 px-3 py-2 text-sm text-slate-100"
                                     >
                                         <span className="min-w-0 break-words">{h}</span>
                                         <IconButton
@@ -471,7 +471,7 @@ const UpdateProduct = () => {
 
                     <div className="flex flex-col gap-1.5">
                         {specs.map((spec, i) => (
-                            <div key={i} className="flex items-center justify-between gap-2 rounded-md border border-app-border bg-slate-900/50 py-2 px-3 text-sm text-slate-100">
+                            <div key={i} className="flex items-center justify-between gap-2 rounded-md border border-app-border bg-neutral-950/50 py-2 px-3 text-sm text-slate-100">
                                 <div className="min-w-0 flex-1">
                                     <p className="font-medium text-slate-200">{spec.title}</p>
                                     {spec.description ? <p className="text-slate-400">{spec.description}</p> : null}

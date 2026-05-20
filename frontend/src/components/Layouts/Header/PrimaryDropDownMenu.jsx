@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useLayoutEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -9,12 +10,31 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { logoutUser } from '../../../actions/userAction';
 
-const PrimaryDropDownMenu = ({ setTogglePrimaryDropDown, user }) => {
+const PrimaryDropDownMenu = ({ setTogglePrimaryDropDown, user, anchorRef }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
+    const [position, setPosition] = useState({ top: 0, right: 0 });
 
     const { wishlistItems } = useSelector((state) => state.wishlist);
+
+    useLayoutEffect(() => {
+        const updatePosition = () => {
+            if (!anchorRef?.current) return;
+            const rect = anchorRef.current.getBoundingClientRect();
+            setPosition({
+                top: rect.bottom + 8,
+                right: Math.max(8, window.innerWidth - rect.right),
+            });
+        };
+        updatePosition();
+        window.addEventListener('resize', updatePosition);
+        window.addEventListener('scroll', updatePosition, true);
+        return () => {
+            window.removeEventListener('resize', updatePosition);
+            window.removeEventListener('scroll', updatePosition, true);
+        };
+    }, [anchorRef]);
 
     const handleLogout = () => {
         dispatch(logoutUser());
@@ -22,6 +42,8 @@ const PrimaryDropDownMenu = ({ setTogglePrimaryDropDown, user }) => {
         enqueueSnackbar('Logout Successfully', { variant: 'success' });
         setTogglePrimaryDropDown(false);
     };
+
+    const close = () => setTogglePrimaryDropDown(false);
 
     const navs = [
         {
@@ -36,14 +58,23 @@ const PrimaryDropDownMenu = ({ setTogglePrimaryDropDown, user }) => {
         },
     ];
 
-    return (
-        <div className="absolute -left-24 top-9 ml-2 flex w-60 flex-col rounded-md border border-app-border bg-app-card text-sm text-slate-200 shadow-2xl shadow-black/40">
+    const itemClass =
+        'flex items-center gap-3 border-b border-neutral-800 py-3 pl-4 pr-3 text-sm text-white transition hover:bg-neutral-800';
+
+    const menu = (
+        <div
+            role="menu"
+            className="user-dropdown-menu fixed z-[200] w-56 overflow-hidden rounded-xl border border-neutral-700 text-sm"
+            style={{
+                top: position.top,
+                right: position.right,
+                backgroundColor: '#0a0a0a',
+                boxShadow: '0 16px 48px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+            }}
+        >
             {user.role === 'admin' && (
-                <Link
-                    className="flex items-center gap-3 rounded-t-md border-b border-app-border py-3.5 pl-3 hover:bg-white/5"
-                    to="/admin/dashboard"
-                >
-                    <span className="text-primary-blue">
+                <Link className={`${itemClass} rounded-t-xl`} to="/admin/dashboard" onClick={close} role="menuitem">
+                    <span className="text-neutral-400">
                         <DashboardIcon sx={{ fontSize: '18px' }} />
                     </span>
                     Admin Dashboard
@@ -51,12 +82,12 @@ const PrimaryDropDownMenu = ({ setTogglePrimaryDropDown, user }) => {
             )}
 
             <Link
-                className={`flex items-center gap-3 border-b border-app-border py-3.5 pl-3 hover:bg-white/5 ${
-                    user.role !== 'admin' ? 'rounded-t-md' : ''
-                }`}
+                className={`${itemClass} ${user.role !== 'admin' ? 'rounded-t-xl' : ''}`}
                 to="/account"
+                onClick={close}
+                role="menuitem"
             >
-                <span className="text-primary-blue">
+                <span className="text-neutral-400">
                     <AccountCircleIcon sx={{ fontSize: '18px' }} />
                 </span>
                 My Profile
@@ -68,22 +99,16 @@ const PrimaryDropDownMenu = ({ setTogglePrimaryDropDown, user }) => {
                 return (
                     <React.Fragment key={title}>
                         {title === 'Wishlist' ? (
-                            <Link
-                                className="flex items-center gap-3 border-b border-app-border py-3.5 pl-3 hover:bg-white/5"
-                                to={redirect}
-                            >
-                                <span className="text-primary-blue">{icon}</span>
+                            <Link className={itemClass} to={redirect} onClick={close} role="menuitem">
+                                <span className="text-neutral-400">{icon}</span>
                                 {title}
-                                <span className="ml-auto mr-3 rounded bg-slate-800 px-2 py-0.5 text-slate-300">
+                                <span className="ml-auto rounded-md bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300">
                                     {wishlistItems.length}
                                 </span>
                             </Link>
                         ) : (
-                            <Link
-                                className="flex items-center gap-3 border-b border-app-border py-3.5 pl-3 hover:bg-white/5"
-                                to={redirect}
-                            >
-                                <span className="text-primary-blue">{icon}</span>
+                            <Link className={itemClass} to={redirect} onClick={close} role="menuitem">
+                                <span className="text-neutral-400">{icon}</span>
                                 {title}
                             </Link>
                         )}
@@ -91,24 +116,21 @@ const PrimaryDropDownMenu = ({ setTogglePrimaryDropDown, user }) => {
                 );
             })}
 
-            <div
-                className="flex cursor-pointer items-center gap-3 rounded-b-md py-3.5 pl-3 hover:bg-white/5"
+            <button
+                type="button"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-b-xl py-3 pl-4 pr-3 text-left text-sm text-white transition hover:bg-neutral-800"
                 onClick={handleLogout}
-                onKeyDown={(e) => e.key === 'Enter' && handleLogout()}
-                role="button"
-                tabIndex={0}
+                role="menuitem"
             >
-                <span className="text-primary-blue">
+                <span className="text-neutral-400">
                     <PowerSettingsNewIcon sx={{ fontSize: '18px' }} />
                 </span>
                 Logout
-            </div>
-
-            <div className="absolute right-1/2 -top-2.5">
-                <div className="arrow_down"></div>
-            </div>
+            </button>
         </div>
     );
+
+    return createPortal(menu, document.body);
 };
 
 export default PrimaryDropDownMenu;

@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { clearErrors, deleteProduct, getAdminProducts } from '../../actions/productAction';
 import Rating from '@mui/material/Rating';
 import { DELETE_PRODUCT_RESET } from '../../constants/productConstants';
@@ -19,6 +20,7 @@ const ProductTable = () => {
 
     const { products, error } = useSelector((state) => state.products);
     const { loading, isDeleted, error: deleteError } = useSelector((state) => state.product);
+    const [seeding, setSeeding] = useState(false);
 
     useEffect(() => {
         if (error) {
@@ -38,7 +40,22 @@ const ProductTable = () => {
 
     const deleteProductHandler = (id) => {
         dispatch(deleteProduct(id));
-    }
+    };
+
+    const seedDemo = async () => {
+        setSeeding(true);
+        try {
+            const { data } = await axios.post('/api/v1/admin/products/seed', null, {
+                withCredentials: true,
+            });
+            enqueueSnackbar(data.message || 'Demo products seeded', { variant: 'success' });
+            dispatch(getAdminProducts());
+        } catch (e) {
+            enqueueSnackbar(e.response?.data?.message || 'Seed failed', { variant: 'error' });
+        } finally {
+            setSeeding(false);
+        }
+    };
 
     const columns = [
         {
@@ -169,7 +186,17 @@ const ProductTable = () => {
 
             <div className="flex items-center justify-between">
                 <h1 className="text-lg font-semibold uppercase tracking-wide text-slate-200">Products</h1>
-                <Link to="/admin/new_product" className="rounded-md bg-gradient-to-r from-sky-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:from-sky-400 hover:to-cyan-400">New Product</Link>
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        type="button"
+                        onClick={seedDemo}
+                        disabled={seeding}
+                        className="rounded border border-neutral-600/50 px-4 py-2 text-sm font-medium text-neutral-200 hover:bg-slate-800 disabled:opacity-50"
+                    >
+                        {seeding ? 'Seeding…' : 'Add demo products'}
+                    </button>
+                    <Link to="/admin/new_product" className="rounded-md bg-gradient-to-r from-neutral-600 to-neutral-800 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-black/20 transition hover:from-neutral-200 hover:to-neutral-300">New Product</Link>
+                </div>
             </div>
             <div className="bg-app-card rounded-xl shadow-lg w-full" style={{ height: 470 }}>
 

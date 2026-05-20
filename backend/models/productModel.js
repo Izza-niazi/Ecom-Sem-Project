@@ -7,6 +7,7 @@ const seoSchema = new mongoose.Schema(
         keywords: { type: String, trim: true, maxlength: 500 },
         ogTitle: { type: String, trim: true, maxlength: 95 },
         ogDescription: { type: String, trim: true, maxlength: 200 },
+        ogImage: { type: String, trim: true, maxlength: 500 },
         robots: { type: String, trim: true, maxlength: 80, default: 'index, follow' },
         canonicalPath: { type: String, trim: true, maxlength: 500 },
     },
@@ -123,6 +124,13 @@ const productSchema = new mongoose.Schema({
         }
     ],
 
+    /** Stable id for demo seeds and blog internal links (optional). */
+    seedKey: {
+        type: String,
+        trim: true,
+        sparse: true,
+        unique: true,
+    },
     user: {
         type: mongoose.Schema.ObjectId,
         ref: "User",

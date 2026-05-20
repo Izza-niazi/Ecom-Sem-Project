@@ -1,29 +1,51 @@
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useProductCategories } from '../../hooks/useProductCategories';
+import { iconForCategory } from '../../utils/categoryIcons';
 
 const MinCategory = () => {
     const { categories, loading } = useProductCategories();
+    const location = useLocation();
+    const activeCategory = new URLSearchParams(location.search).get('category') || '';
 
     if (loading || categories.length === 0) {
         return null;
     }
 
     return (
-        <section className="mt-14 hidden w-full overflow-hidden border-b border-app-border bg-app-card/90 px-2 backdrop-blur-sm sm:block sm:px-12">
-            <div className="flex items-center justify-between p-0.5">
-                {categories.map((el) => (
-                    <Link
-                        to={`/products?category=${encodeURIComponent(el)}`}
-                        key={el}
-                        className="group flex items-center gap-0.5 p-2 text-sm font-medium text-slate-300 hover:text-sky-400"
-                    >
-                        {el}{' '}
-                        <span className="text-slate-500 group-hover:text-sky-400">
-                            <ExpandMoreIcon sx={{ fontSize: '16px' }} />
-                        </span>
-                    </Link>
-                ))}
+        <section
+            className="category-bar sticky top-14 z-40 mt-14 w-full border-b border-white/[0.06] bg-black/90 backdrop-blur-md"
+            aria-label="Shop by category"
+        >
+            <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-3 py-2.5 scrollbar-none sm:gap-2.5 sm:px-4">
+                <Link
+                    to="/products"
+                    className={`category-pill shrink-0 ${
+                        location.pathname.startsWith('/products') && !activeCategory
+                            ? 'category-pill-active'
+                            : ''
+                    }`}
+                >
+                    All
+                </Link>
+                {categories.map((name) => {
+                    const isActive =
+                        activeCategory.toLowerCase() === name.toLowerCase();
+                    return (
+                        <Link
+                            to={`/products?category=${encodeURIComponent(name)}`}
+                            key={name}
+                            className={`category-pill shrink-0 ${isActive ? 'category-pill-active' : ''}`}
+                        >
+                            <img
+                                src={iconForCategory(name)}
+                                alt=""
+                                className="h-4 w-4 object-contain opacity-90"
+                                draggable={false}
+                            />
+                            <span>{name}</span>
+                        </Link>
+                    );
+                })}
             </div>
         </section>
     );

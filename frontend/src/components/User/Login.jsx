@@ -42,10 +42,9 @@ const Login = () => {
             <MetaData title={metaTitle('Login')} />
 
             {loading && <BackdropLoader />}
-            <main className="w-full mt-12 sm:pt-20 sm:mt-0">
+            <main className="mx-auto mt-16 w-full max-w-4xl px-3 pb-12 sm:mt-24 sm:px-4">
 
-                {/* <!-- row --> */}
-                <div className="flex sm:w-4/6 sm:mt-4 m-auto mb-7 bg-app-card shadow-lg">
+                <div className="glass-panel fun-noise flex overflow-hidden shadow-card sm:mt-4">
                     {/* <!-- sidebar column  --> */}
                     <div className="loginSidebar hidden w-2/5 flex-col gap-4 p-10 pr-12 sm:flex">
                         <h1 className="text-3xl font-semibold text-white">Login</h1>
@@ -85,8 +84,8 @@ const Login = () => {
 
                                     {/* <!-- button container --> */}
                                     <div className="flex flex-col gap-2.5 mt-2 mb-32">
-                                        <p className="text-left text-xs text-primary-grey">By continuing, you agree to {APP_NAME}&apos;s <a href="/terms" className="text-sky-400 hover:underline">Terms of Use</a> and <a href="/privacy" className="text-sky-400 hover:underline">Privacy Policy</a>.</p>
-                                        <button type="submit" className="w-full rounded-md bg-gradient-to-r from-orange-500 to-rose-500 py-3 font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-400 hover:to-rose-400">Login</button>
+                                        <p className="text-left text-xs text-primary-grey">By continuing, you agree to {APP_NAME}&apos;s <a href="/terms" className="text-neutral-300 hover:underline">Terms of Use</a> and <a href="/privacy" className="text-neutral-300 hover:underline">Privacy Policy</a>.</p>
+                                        <button type="submit" className="btn-accent w-full !py-3">Log in</button>
                                     </div>
                                     {/* <!-- button container --> */}
 
@@ -94,7 +93,7 @@ const Login = () => {
                             </form>
                             {/* <!-- input container --> */}
 
-                            <Link to="/register" className="text-sm font-medium text-sky-400 hover:text-sky-300">New to {APP_NAME}? Create an account</Link>
+                            <Link to="/register" className="text-sm font-medium text-neutral-300 hover:text-neutral-200">New to {APP_NAME}? Create an account</Link>
                         </div>
                         {/* <!-- edit info container --> */}
 

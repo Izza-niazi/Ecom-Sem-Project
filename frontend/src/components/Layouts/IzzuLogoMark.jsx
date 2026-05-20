@@ -54,8 +54,8 @@ const IzzuLogoMark = ({ className = "h-7 w-7" }) => (
     />
     <circle cx="22.5" cy="27" r="0.9" fill="currentColor" className="text-amber-300" />
     {/* window */}
-    <rect x="10" y="19" width="4" height="3.5" rx="0.6" fill="currentColor" className="text-sky-200/50" />
-    <rect x="26" y="19" width="4" height="3.5" rx="0.6" fill="currentColor" className="text-sky-200/50" />
+    <rect x="10" y="19" width="4" height="3.5" rx="0.6" fill="currentColor" className="text-neutral-200/50" />
+    <rect x="26" y="19" width="4" height="3.5" rx="0.6" fill="currentColor" className="text-neutral-200/50" />
   </svg>
 );
 

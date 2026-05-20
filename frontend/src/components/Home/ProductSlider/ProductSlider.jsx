@@ -40,22 +40,19 @@ const ProductSlider = ({
     const showLoader = waitingForRec || waitingForCatalog;
 
     return (
-        <section className="w-full overflow-hidden rounded-2xl border border-app-border/70 bg-gradient-to-br from-app-card via-app-card to-slate-950/40 shadow-xl shadow-black/40 ring-1 ring-white/[0.03]">
-            <div className="flex flex-col gap-3 border-b border-app-border/80 px-4 py-4 sm:flex-row sm:items-end sm:justify-between sm:px-6 sm:py-5">
+        <section className="section-shell animate-slide-up w-full">
+            <div className="section-head">
                 <div className="min-w-0 flex-1">
-                    <h1 className="text-lg font-semibold tracking-tight text-slate-50 sm:text-xl">{title}</h1>
-                    {tagline ? <p className="mt-1 text-sm text-slate-500">{tagline}</p> : null}
+                    <h2 className="section-title">{title}</h2>
+                    {tagline ? <p className="section-tagline">{tagline}</p> : null}
                 </div>
-                <Link
-                    to="/products"
-                    className="shrink-0 self-start rounded-lg border border-sky-500/35 bg-sky-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-sky-300 transition hover:border-sky-400/50 hover:bg-sky-500/15 hover:text-sky-200 sm:self-auto"
-                >
+                <Link to="/products" className="btn-secondary shrink-0 self-start !text-xs sm:self-auto">
                     View all
                 </Link>
             </div>
             {showLoader ? (
                 <div className="flex min-h-[280px] items-center justify-center px-6 py-12">
-                    <div className="h-9 w-9 animate-pulse rounded-full border-2 border-sky-500/30 border-t-sky-400" aria-hidden />
+                    <div className="h-9 w-9 animate-pulse rounded-full border-2 border-white/20 border-t-white" aria-hidden />
                 </div>
             ) : rowProducts.length === 0 ? (
                 <p className="px-6 py-10 text-center text-sm text-slate-500">No products in the store yet.</p>

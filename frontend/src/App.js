@@ -33,14 +33,21 @@ import UserTable from './components/Admin/UserTable';
 import UpdateUser from './components/Admin/UpdateUser';
 import ReviewsTable from './components/Admin/ReviewsTable';
 import ActivityTable from './components/Admin/ActivityTable';
+import SeoManager from './components/Admin/SeoManager';
+import BlogList from './components/Blog/BlogList';
+import BlogPost from './components/Blog/BlogPost';
+import BlogTable from './components/Admin/BlogTable';
+import BlogEditor from './components/Admin/BlogEditor';
 import Wishlist from './components/Wishlist/Wishlist';
 import NotFound from './components/NotFound';
 import ShopChat from './components/Layouts/ShopChat';
+import { usePageAnalytics } from './hooks/usePageAnalytics';
 
 function App() {
 
   const dispatch = useDispatch();
   const { pathname } = useLocation();
+  usePageAnalytics();
 
   useEffect(() => {
     WebFont.load({
@@ -48,6 +55,7 @@ function App() {
         families: [
           "Plus Jakarta Sans:400,500,600,700",
           "Roboto:300,400,500,600,700",
+          "Playfair Display:500,600,700",
         ],
       },
     });
@@ -66,16 +74,10 @@ function App() {
     });
   }, [pathname])
 
-  // disable right click
-  window.addEventListener("contextmenu", (e) => e.preventDefault());
-  window.addEventListener("keydown", (e) => {
-    if (e.keyCode === 123) e.preventDefault();
-    if (e.ctrlKey && e.shiftKey && e.keyCode === 73) e.preventDefault();
-    if (e.ctrlKey && e.shiftKey && e.keyCode === 74) e.preventDefault();
-  });
-  
   return (
-    <>
+    <div className="app-shell">
+      <div className="app-ambient" aria-hidden />
+      <div className="page-content">
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -85,6 +87,9 @@ function App() {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:keyword" element={<Products />} />
+
+        <Route path="/blog" element={<BlogList />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
 
         <Route path="/cart" element={<Cart />} />
 
@@ -233,12 +238,45 @@ function App() {
           </ProtectedRoute>
         } ></Route>
 
+        <Route path="/admin/seo" element={
+          <ProtectedRoute isAdmin={true}>
+            <Dashboard activeTab={7}>
+              <SeoManager />
+            </Dashboard>
+          </ProtectedRoute>
+        } ></Route>
+
+        <Route path="/admin/blogs" element={
+          <ProtectedRoute isAdmin={true}>
+            <Dashboard activeTab={8}>
+              <BlogTable />
+            </Dashboard>
+          </ProtectedRoute>
+        } ></Route>
+
+        <Route path="/admin/blog/new" element={
+          <ProtectedRoute isAdmin={true}>
+            <Dashboard activeTab={8}>
+              <BlogEditor />
+            </Dashboard>
+          </ProtectedRoute>
+        } ></Route>
+
+        <Route path="/admin/blog/:id" element={
+          <ProtectedRoute isAdmin={true}>
+            <Dashboard activeTab={8}>
+              <BlogEditor />
+            </Dashboard>
+          </ProtectedRoute>
+        } ></Route>
+
         <Route path="*" element={<NotFound />}></Route>
 
       </Routes>
       <ShopChat />
       <Footer />
-    </>
+      </div>
+    </div>
   );
 }
 

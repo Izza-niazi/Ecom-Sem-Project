@@ -5,14 +5,15 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import { APP_NAME } from '../../../constants/brand';
+import Logo from '../Logo';
 
 const footerNav = [
+    { name: 'Blog', to: '/blog' },
     { name: 'Browse products', to: '/products' },
     { name: 'Terms of Use', to: '/terms' },
     { name: 'Privacy', to: '/privacy' },
 ];
 
-/** Placeholder social links — replace with real profiles when ready. */
 const socialLinks = [
     { name: 'Facebook', href: 'https://facebook.com', Icon: FacebookIcon },
     { name: 'Twitter', href: 'https://twitter.com', Icon: TwitterIcon },
@@ -33,16 +34,30 @@ const Footer = () => {
     }
 
     return (
-        <footer className="mt-20 w-full border-t border-app-border bg-primary-darkBlue text-xs text-slate-300">
-            <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-8">
-                <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                    <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <footer className="relative mt-24 w-full border-t border-white/[0.06] bg-black/80 backdrop-blur-xl">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+            <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8">
+                <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="max-w-sm">
+                        <Logo />
+                        <p className="mt-4 text-sm leading-relaxed text-slate-400">
+                            Pakistan&apos;s favourite marketplace — electronics, fashion, home essentials,
+                            and more. Secure checkout in PKR.
+                        </p>
+                    </div>
+
+                    <nav className="flex flex-wrap gap-x-8 gap-y-3">
                         {footerNav.map((item) => (
-                            <Link key={item.to} to={item.to} className="transition hover:text-sky-400">
+                            <Link
+                                key={item.to}
+                                to={item.to}
+                                className="text-sm font-medium text-slate-400 transition hover:text-neutral-200"
+                            >
                                 {item.name}
                             </Link>
                         ))}
                     </nav>
+
                     <div className="flex items-center gap-1">
                         {socialLinks.map(({ name, href, Icon }) => (
                             <a
@@ -50,7 +65,7 @@ const Footer = () => {
                                 href={href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="rounded-md p-2 text-slate-400 transition hover:bg-white/5 hover:text-sky-400"
+                                className="rounded-xl p-2.5 text-slate-500 transition hover:bg-white/[0.06] hover:text-neutral-300"
                                 aria-label={name}
                             >
                                 <Icon sx={{ fontSize: 22 }} />
@@ -58,8 +73,9 @@ const Footer = () => {
                         ))}
                     </div>
                 </div>
-                <p className="text-center text-slate-500 sm:text-left">
-                    &copy; {new Date().getFullYear()} {APP_NAME}
+
+                <p className="mt-10 border-t border-white/[0.06] pt-8 text-center text-xs text-slate-500 sm:text-left">
+                    &copy; {new Date().getFullYear()} {APP_NAME}. All rights reserved.
                 </p>
             </div>
         </footer>

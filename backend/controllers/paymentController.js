@@ -8,7 +8,6 @@ const getStripe = () => {
   if (!key) {
     throw new Error("STRIPE_SECRET_KEY is not set");
   }
-  // eslint-disable-next-line global-require
   return require("stripe")(key);
 };
 

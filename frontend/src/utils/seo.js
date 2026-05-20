@@ -6,9 +6,38 @@ export const EMPTY_SEO_FIELDS = {
     keywords: '',
     ogTitle: '',
     ogDescription: '',
+    ogImage: '',
     robots: 'index, follow',
     canonicalPath: '',
 };
+
+/** Pick first non-empty string from candidates. */
+export function coalesce(...values) {
+    for (const v of values) {
+        const s = v == null ? '' : String(v).trim();
+        if (s) return s;
+    }
+    return '';
+}
+
+/**
+ * Merge DB page SEO with route-specific fallbacks for MetaData.
+ * @param {object|null|undefined} saved - from API
+ * @param {object} defaults - { title, description, keywords, canonical, ogTitle, ogDescription, ogImage, robots }
+ */
+export function mergePageMeta(saved, defaults) {
+    const s = saved || {};
+    return {
+        title: coalesce(s.pageTitle, defaults.title),
+        description: coalesce(s.metaDescription, defaults.description),
+        keywords: coalesce(s.keywords, defaults.keywords),
+        canonical: absoluteUrl(coalesce(s.canonicalPath, defaults.canonicalPath)),
+        ogTitle: coalesce(s.ogTitle, s.pageTitle, defaults.ogTitle, defaults.title),
+        ogDescription: coalesce(s.ogDescription, s.metaDescription, defaults.ogDescription, defaults.description),
+        ogImage: coalesce(s.ogImage, defaults.ogImage),
+        robots: coalesce(s.robots, defaults.robots) || 'index, follow',
+    };
+}
 
 export function getSiteOrigin() {
     const env = process.env.REACT_APP_SITE_URL;
@@ -45,6 +74,23 @@ export function excerpt(text, maxLen) {
     const t = String(text).trim();
     if (t.length <= maxLen) return t;
     return `${t.slice(0, maxLen - 1).trim()}…`;
+}
+
+export function buildBlogJsonLd(blog, { description, canonical }) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: blog.title,
+        description: description || blog.excerpt || blog.title,
+        image: blog.coverImage || undefined,
+        datePublished: blog.publishedAt || blog.createdAt,
+        dateModified: blog.updatedAt || blog.publishedAt,
+        author: {
+            '@type': 'Organization',
+            name: blog.author || 'izzmarket',
+        },
+        mainEntityOfPage: canonical || undefined,
+    };
 }
 
 export function buildProductJsonLd(product, { description, canonical }) {

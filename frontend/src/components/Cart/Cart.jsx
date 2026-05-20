@@ -20,17 +20,17 @@ const Cart = () => {
     return (
         <>
             <MetaData title={metaTitle('Shopping Cart')} />
-            <main className="w-full mt-20">
+            <main className="mx-auto mt-20 w-full max-w-7xl px-3 pb-12 sm:mt-24 sm:px-4">
 
                 {/* <!-- row --> */}
-                <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-11/12 mt-0 sm:mt-4 m-auto sm:mb-7">
+                <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
 
                     {/* <!-- cart column --> */}
                     <div className="flex-1">
 
                         {/* <!-- cart items container --> */}
-                        <div className="flex flex-col shadow bg-app-card">
-                            <span className="font-medium text-lg px-2 sm:px-8 py-4 border-b">My Cart ({cartItems.length})</span>
+                        <div className="checkout-card flex flex-col">
+                            <span className="checkout-card-header">My cart ({cartItems.length})</span>
 
                             {cartItems && cartItems.length === 0 && (
                                 <EmptyCart />
@@ -42,8 +42,18 @@ const Cart = () => {
                             )}
 
                             {/* <!-- place order btn --> */}
-                            <div className="flex justify-end">
-                                <button onClick={placeOrderHandler} disabled={cartItems.length < 1 ? true : false} className={`${cartItems.length < 1 ? "bg-primary-grey cursor-not-allowed" : "bg-primary-orange"} w-full sm:w-1/3 mx-2 sm:mx-6 my-4 py-3 font-medium text-white shadow hover:shadow-lg rounded-sm`}>PLACE ORDER</button>
+                            <div className="flex justify-end px-4 pb-4 sm:px-6">
+                                <button
+                                    onClick={placeOrderHandler}
+                                    disabled={cartItems.length < 1}
+                                    className={
+                                        cartItems.length < 1
+                                            ? 'w-full cursor-not-allowed rounded-xl bg-slate-700 px-6 py-3 text-sm font-semibold text-slate-500 sm:w-auto'
+                                            : 'btn-accent w-full !py-3 sm:w-auto sm:min-w-[200px]'
+                                    }
+                                >
+                                    Place order
+                                </button>
                             </div>
                             {/* <!-- place order btn --> */}
 
@@ -51,8 +61,8 @@ const Cart = () => {
                         {/* <!-- cart items container --> */}
 
                         {/* <!-- saved for later items container --> */}
-                        <div className="flex flex-col mt-5 shadow bg-app-card">
-                            <span className="font-medium text-lg px-2 sm:px-8 py-4 border-b">Saved For Later ({saveForLaterItems.length})</span>
+                        <div className="checkout-card mt-5 flex flex-col">
+                            <span className="checkout-card-header">Saved for later ({saveForLaterItems.length})</span>
                             {saveForLaterItems && saveForLaterItems.map((item) => (
                                 <SaveForLaterItem {...item} />
                             )
@@ -66,7 +76,6 @@ const Cart = () => {
                     <PriceSidebar cartItems={cartItems} />
 
                 </div>
-                {/* <!-- row --> */}
 
             </main>
         </>

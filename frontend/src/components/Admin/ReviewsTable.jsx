@@ -132,7 +132,7 @@ const ReviewsTable = () => {
                         placeholder="Filter by Product ID (optional, 24 chars)"
                         value={productIdFilter}
                         onChange={(e) => setProductIdFilter(e.target.value.trim())}
-                        className="w-full rounded border border-app-border bg-slate-900 p-2 text-sm text-slate-100 shadow placeholder:text-slate-500"
+                        className="w-full rounded border border-app-border bg-neutral-950 p-2 text-sm text-slate-100 shadow placeholder:text-slate-500"
                     />
                     <span className="text-xs text-slate-500">Leave empty to show all reviews</span>
                 </div>

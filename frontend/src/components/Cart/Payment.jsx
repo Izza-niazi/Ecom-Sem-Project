@@ -16,6 +16,7 @@ import { useSnackbar } from 'notistack';
 import MetaData from '../Layouts/MetaData';
 import { APP_NAME } from '../../constants/brand';
 import { formatRs } from '../../utils/currency';
+import { computeCouponDiscount } from '../../utils/coupon';
 
 const CARD_OPTIONS = {
     style: {
@@ -79,6 +80,8 @@ function StripeCheckoutForm({
     const stripe = useStripe();
     const elements = useElements();
     const [loading, setLoading] = useState(false);
+    const [cardComplete, setCardComplete] = useState(false);
+    const [cardError, setCardError] = useState(null);
 
     const selectedPm = savedMethods.find((pm) => pm.id === selectedSavedPmId);
 
@@ -172,16 +175,15 @@ function StripeCheckoutForm({
     };
 
     const canPay =
-        stripe &&
-        (selectedSavedPmId ||
-            (!selectedSavedPmId && elements?.getElement(CardElement)));
+        Boolean(stripe) &&
+        (Boolean(selectedSavedPmId) || (!selectedSavedPmId && cardComplete));
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-lg">
             {selectedSavedPmId && selectedPm ? (
-                <div className="rounded-lg border border-sky-500/40 bg-slate-900/80 p-4">
+                <div className="rounded-lg border border-white/25 bg-neutral-950/80 p-4">
                     <div className="flex items-start gap-3">
-                        <CheckCircleIcon className="mt-0.5 shrink-0 text-sky-400" />
+                        <CheckCircleIcon className="mt-0.5 shrink-0 text-neutral-300" />
                         <div className="min-w-0 flex-1">
                             <p className="text-sm font-medium text-slate-100">
                                 Using saved card
@@ -196,8 +198,12 @@ function StripeCheckoutForm({
                             </p>
                             <button
                                 type="button"
-                                onClick={onClearSavedSelection}
-                                className="mt-3 text-sm font-medium text-sky-400 hover:text-sky-300"
+                                onClick={() => {
+                                onClearSavedSelection();
+                                setCardComplete(false);
+                                setCardError(null);
+                            }}
+                                className="mt-3 text-sm font-medium text-neutral-300 hover:text-neutral-200"
                             >
                                 Use a different card instead
                             </button>
@@ -214,26 +220,41 @@ function StripeCheckoutForm({
                     </label>
                     <div
                         id="card-element"
-                        className="min-h-[52px] rounded-md border border-slate-500/50 bg-slate-950/50 px-3 py-3 transition-colors focus-within:border-sky-500/60 focus-within:ring-1 focus-within:ring-sky-500/30"
+                        className="min-h-[52px] rounded-md border border-slate-500/50 bg-black/50 px-3 py-3 transition-colors focus-within:border-neutral-600/60 focus-within:ring-1 focus-within:ring-neutral-500/30"
                     >
-                        <CardElement options={CARD_OPTIONS} />
+                        <CardElement
+                            options={CARD_OPTIONS}
+                            onChange={(e) => {
+                                setCardComplete(e.complete);
+                                setCardError(e.error ? e.error.message : null);
+                            }}
+                        />
                     </div>
+                    {cardError && (
+                        <p className="mt-2 text-xs text-red-400">{cardError}</p>
+                    )}
                     <p className="mt-2 text-xs text-slate-500">
                         Test mode: use <span className="font-mono">4242 4242 4242 4242</span>, any
                         future expiry, any CVC.
                     </p>
                 </div>
             )}
-            <input
+            {!canPay && !loading && stripe && !selectedSavedPmId && (
+                <p className="text-xs text-slate-500">
+                    Enter your full card number, expiry, and CVC to enable Pay.
+                </p>
+            )}
+            <button
                 type="submit"
-                value={loading ? 'Processing…' : `Pay ${formatRs(totalPrice)}`}
                 disabled={!canPay || loading}
                 className={`${
                     !canPay || loading
                         ? 'bg-primary-grey cursor-not-allowed'
-                        : 'bg-primary-orange cursor-pointer'
-                } w-full max-w-xs py-3.5 font-medium text-white shadow-lg hover:shadow-xl rounded-sm uppercase tracking-wide outline-none transition-shadow`}
-            />
+                        : 'bg-primary-orange cursor-pointer hover:shadow-xl'
+                } w-full max-w-xs py-3.5 font-medium text-white shadow-lg rounded-sm uppercase tracking-wide outline-none transition-shadow`}
+            >
+                {loading ? 'Processing…' : `Pay ${formatRs(totalPrice)}`}
+            </button>
         </form>
     );
 }
@@ -251,14 +272,16 @@ const Payment = () => {
     const [savedMethods, setSavedMethods] = useState([]);
     const [selectedSavedPmId, setSelectedSavedPmId] = useState(null);
 
-    const { shippingInfo, cartItems } = useSelector((state) => state.cart);
+    const { shippingInfo, cartItems, coupon } = useSelector((state) => state.cart);
     const { user } = useSelector((state) => state.user);
     const { error } = useSelector((state) => state.newOrder);
 
-    const totalPrice = cartItems.reduce(
+    const cartSubtotal = cartItems.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0
     );
+    const couponOff = computeCouponDiscount(coupon, cartSubtotal);
+    const totalPrice = Math.max(0, cartSubtotal - couponOff);
 
     useEffect(() => {
         let cancelled = false;
@@ -364,12 +387,12 @@ const Payment = () => {
                                                             }
                                                             className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-all ${
                                                                 isSelected
-                                                                    ? 'border-sky-500 bg-sky-950/40 ring-2 ring-sky-500/50'
-                                                                    : 'border-slate-600/70 bg-slate-900/50 hover:border-slate-500 hover:bg-slate-800/60'
+                                                                    ? 'border-neutral-600 bg-neutral-950/40 ring-2 ring-neutral-500/50'
+                                                                    : 'border-slate-600/70 bg-neutral-950/50 hover:border-slate-500 hover:bg-slate-800/60'
                                                             }`}
                                                         >
                                                             <CreditCardIcon
-                                                                className="shrink-0 text-sky-400/90"
+                                                                className="shrink-0 text-neutral-300/90"
                                                                 fontSize="small"
                                                             />
                                                             <div className="min-w-0">
@@ -382,7 +405,7 @@ const Payment = () => {
                                                                 </p>
                                                             </div>
                                                             {isSelected && (
-                                                                <CheckCircleIcon className="ml-auto shrink-0 text-sky-400" fontSize="small" />
+                                                                <CheckCircleIcon className="ml-auto shrink-0 text-neutral-300" fontSize="small" />
                                                             )}
                                                         </button>
                                                     );
