@@ -11,7 +11,8 @@
     "seed": "node backend/scripts/seed.js",
     "seed:products": "node backend/scripts/seedProductsOnly.js",
     "seed:blogs": "node backend/scripts/seedBlogs.js",
-    "render-postbuild": "NPM_CONFIG_PRODUCTION=false && npm install --prefix frontend && npm run build --prefix frontend"
+    "render-postbuild": "NPM_CONFIG_PRODUCTION=false && npm install --prefix frontend && npm run build --prefix frontend",
+    "vercel-build": "npm install --prefix frontend && GENERATE_SOURCEMAP=false npm run build --prefix frontend"
   },
   "author": "Jigar Sable",
   "license": "ISC",
